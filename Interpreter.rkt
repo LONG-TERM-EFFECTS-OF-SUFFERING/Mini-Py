@@ -25,6 +25,12 @@
 ;                             PROGRAM EVALUATION                             ;
 ; -------------------------------------------------------------------------- ;
 
-(define interpreter (
-	sllgen:make-rep-loop  "--> " (lambda (pgm) (eval-program  pgm)) (sllgen:make-stream-parser lexica grammar)
-))
+;(define interpreter (
+;	sllgen:make-rep-loop  "--> " (lambda (pgm) (eval-program  pgm)) (sllgen:make-stream-parser lexica grammar)
+;))
+
+(scan&parse "
+int main() {
+    x 32 (1, 3, 2)
+}
+")

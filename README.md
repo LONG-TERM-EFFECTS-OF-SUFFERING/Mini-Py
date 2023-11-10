@@ -3,10 +3,14 @@
 ## Grammar specification
 
 ```
-<program>           := main() { <expression> }
+<program>           := int main() { <expression> }
+                        a-program (exp)
 
 <expression>        := <number>
                        lit-number (num)
+
+                    := x <number> ({ expression }+)
+                       bignum-exp (base numbers)
 
                     := "<text>"
                        lit-text (txt)
@@ -19,4 +23,13 @@
 
                     := "false"
                         false-exp
+
+                    := var { <identifier> = <expression> }* in <expression>
+                       let-exp (identifiers bodies body)
+
+                    := const { <identifier> = <expression> }* in <expression>
+                       const-exp (identifiers bodies body)
+
+                    := rec { <identifier> = <expression> }* in <expression>
+                       letrec-exp (identifiers bodies body)
 ```
