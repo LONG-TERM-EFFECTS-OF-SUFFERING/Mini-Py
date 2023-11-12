@@ -31,9 +31,11 @@
 	(expression (number) lit-number)
     (expression ("x" number "(" (separated-list number ",") ")") bignum-exp)
 	(expression (identifier) var-exp)
-	(expresion ("\"" text "\"") lit-text)
+	(expression ("\"" text "\"") lit-text)
 	(expression ("false") false-exp)
 	(expression ("true") true-exp)
+
+
 
 
 	(expression (primitive "(" (separated-list expression ",") ")" ) primapp-exp)

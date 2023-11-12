@@ -30,6 +30,6 @@
                     := const { <identifier> = <expression> }* in <expression>
                        const-exp (identifiers bodies body)
 
-                    := rec { <identifier> = <expression> }* in <expression>
-                       letrec-exp (identifiers bodies body)
+                    := rec { <identifier> ({ identifier }* (,)) = <expression> }* in <expression>
+                       letrec-exp (procedures-names procedures-arguments procedures-bodies body)
 ```

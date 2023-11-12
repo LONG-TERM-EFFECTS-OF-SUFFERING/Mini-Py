@@ -31,6 +31,6 @@
 
 (scan&parse "
 int main() {
-    x 32 (1, 3, 2)
+    \"t\"
 }
 ")
