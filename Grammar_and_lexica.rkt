@@ -10,7 +10,7 @@
 
 (define lexica '(
 	(white-sp (whitespace) skip)
-	(comment ("//" (arbno (not #\newline))) skip) ; Comments
+	(comment (";;;" (arbno (not #\newline))) skip) ; Comments
 	(identifier (letter (arbno (or letter digit "?"))) symbol)
 	(number (digit (arbno digit)) number) ; Positive int numbers
 	(number ("-" digit (arbno digit)) number) ; Negative int numbers
