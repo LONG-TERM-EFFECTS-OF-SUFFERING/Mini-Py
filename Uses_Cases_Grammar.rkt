@@ -29,7 +29,7 @@
 	// floating number:
 	// 3.1415
 	// hexadecimal number:
-	x 16 (4,12,10)
+	x16 (4,12,10)
 	}
 ")
 
@@ -47,6 +47,6 @@
 (scan&parse "
 	int main() {
 	// true
-	// false
+	false
 	}
 ")
