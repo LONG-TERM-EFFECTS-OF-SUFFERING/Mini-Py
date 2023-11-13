@@ -4,197 +4,197 @@
 
 - La gramatica debe estar acompañada de comentarios casos de uso y ejemplos usando el scan-and-parse
 - Entregar el lenguaje normal y el tipado
-- Implementar tipado por checkeo no pr inferencia, igual a la primera parte del curso
+- Implementar tipado por checkeo no por inferencia, igual a la primera parte del curso
 
 - Valores
 
-    - [X] Enteros.
+	- [X] Enteros.
 
-    - [X] Flotantes.
+	- [X] Flotantes.
 
-    - [X] BIGNUM.
+	- [X] BIGNUM.
 
-    - [X] Cadenas de caracteres.
+	- [X] Cadenas de caracteres.
 
-    - [X] Booleanos.
+	- [X] Booleanos.
 
-    - [ ] Procedimientos.
+	- [X] Procedimientos.
 
-    - [ ] Listas.
+	- [X] Listas.
 
-    - [ ] Registros.
+	- [X] Registros.
 
-    - [ ] Tuplas.
+	- [X] Tuplas.
 
 ## Gramatica
 
 - Sintaxis Gramatical.
 
-    - [X] Identificadores.
+	- [X] Identificadores.
 
-    - Definiciones.
+	- Definiciones.
 
-        - [X] var.
+		- [X] var.
 
-        - [X] const.
+		- [X] const.
 
-        - [X] rec.
+		- [X] rec.
 
-    - Datos.
+	- Datos.
 
-        - [ ] numero
+		- [X] numero
 
-        - [ ] cadena
+		- [X] cadena
 
-        - [ ] booleano
+		- [X] booleano
 
-    - Constructores de Datos Predefinidos.
+	- Constructores de Datos Predefinidos.
 
-        - [ ] lista
+		- [ ] lista
 
-        - [ ] tupla
+		- [ ] tupla
 
-        - [ ] registro
+		- [ ] registro
 
-        - [ ] expr-bool
+		- [ ] expr-bool
 
-    - Estructuras de control
+	- Estructuras de control
 
-        - [ ] begin-end
-        
-        - [ ] if-then-else
+		- [ ] begin-end
 
-        - [ ] while-do
+		- [ ] if-then-else
 
-        - [ ] for-do
+		- [ ] while-do
 
-    - Primitiva aritmetica para enteros
+		- [ ] for-do
 
-        - [ ] +e
+	- Primitiva aritmetica para enteros
 
-        - [ ] -e
+		- [ ] +e
 
-        - [ ] *e    
+		- [ ] -e
 
-        - [ ] /e    
+		- [ ] *e
 
-        - [ ] add1e
+		- [ ] /e
 
-        - [ ] sub1e
+		- [ ] add1e
 
-    - Primitiva aritmetica para flotantes
+		- [ ] sub1e
 
-        - [ ] +f
+	- Primitiva aritmetica para flotantes
 
-        - [ ] -f
+		- [ ] +f
 
-        - [ ] *f
+		- [ ] -f
 
-        - [ ] /f
+		- [ ] *f
 
-        - [ ] add1f
+		- [ ] /f
 
-        - [ ] sub1f
+		- [ ] add1f
 
-    - Primitiva aritmetica para hexadecimales
+		- [ ] sub1f
 
-        - [ ] +h
+	- Primitiva aritmetica para hexadecimales
 
-        - [ ] -h
+		- [ ] +h
 
-        - [ ] *h
+		- [ ] -h
 
-        - [ ] add1h
+		- [ ] *h
 
-        - [ ] sub1h
+		- [ ] add1h
 
+		- [ ] sub1h
 
-    - Primitivas sobre cadenas
 
-        - [ ] length
+	- Primitivas sobre cadenas
 
-        - [ ] concat
+		- [ ] length
 
-    - Primitivas sobre listas (recordar que las listas son mutables)
+		- [ ] concat
 
-        - [ ] empty? : list -> bool
+	- Primitivas sobre listas (recordar que las listas son mutables)
 
-        - [ ] empty : list
+		- [ ] empty? : list -> bool
 
-        - [ ] create-list : list
+		- [ ] empty : list
 
-        - [ ] list? : list -> bool
+		- [ ] create-list : list
 
-        - [ ] head : list -> value
+		- [ ] list? : list -> bool
 
-        - [ ] tail : list -> value
+		- [ ] head : list -> value
 
-        - [ ] append : list, value -> list : Agrega un elemento al final de la lista
+		- [ ] tail : list -> value
 
-        - [ ] ref-list : list, int -> value
+		- [ ] append : list, value -> list : Agrega un elemento al final de la lista
 
-        - [ ] set-list : list, int, value -> list
+		- [ ] ref-list : list, int -> value
 
-    - Primitivas sobre tuplas. (Recordar que son inmutables)
+		- [ ] set-list : list, int, value -> list
 
-        - [ ] empty-tuple? : tuple -> bool
+	- Primitivas sobre tuplas. (Recordar que son inmutables)
 
-        - [ ] empty-tuple : tuple
+		- [ ] empty-tuple? : tuple -> bool
 
-        - [ ] create-tuple : tuple
-        
-        - [ ] tuple? : tuple -> bool
+		- [ ] empty-tuple : tuple
 
-        - [ ] head-tuple : tuple -> value
+		- [ ] create-tuple : tuple
 
-        - [ ] tail-tuple : tuple -> value
+		- [ ] tuple? : tuple -> bool
 
-        - [ ] ref-tuple : tuple, int -> value
+		- [ ] head-tuple : tuple -> value
 
-    - Primitivas sobre registros. (Recordar que son mutables compuestas por conjuntos de claves y valor)
+		- [ ] tail-tuple : tuple -> value
 
-        - [ ] dict? : dict -> bool
+		- [ ] ref-tuple : tuple, int -> value
 
-        - [ ] create-dict : dict
+	- Primitivas sobre registros. (Recordar que son mutables compuestas por conjuntos de claves y valor)
 
-        - [ ] ref-dict : dict, key -> value : Retorna el valor asociado a la clave
+		- [ ] dict? : dict -> bool
 
-        - [ ] set-dict : dict, key, value -> dict : Asocia una clave con un valor
+		- [ ] create-dict : dict
 
-    - Definicion e invocacion de procedimientos
+		- [ ] ref-dict : dict, key -> value : Retorna el valor asociado a la clave
 
-        - [ ] El lenguaje debe permititr la creacion e invocacion de procedimientos que retornen un valor.
+		- [ ] set-dict : dict, key, value -> dict : Asocia una clave con un valor
 
-        - [ ] El paso de parametros sera por valor para : **valores numericos, caracteres, cadenas, procedimientos, tuplas**
+	- Definicion e invocacion de procedimientos
 
-        - [ ] El paso de parametros sera por referencia para : **listas y registros**
+		- [ ] El lenguaje debe permititr la creacion e invocacion de procedimientos que retornen un valor.
 
-    - Definicion/Invocacion de prodecimientos recursivos
+		- [ ] El paso de parametros sera por valor para : **valores numericos, caracteres, cadenas, procedimientos, tuplas**
 
-        - [ ] El lenguaje debe permitir la definicion e invocacion de procedimientos que puedan invocarse recursivamente.
+		- [ ] El paso de parametros sera por referencia para : **listas y registros**
 
-        - [ ] El paso de parametros sera por valor para : **valores numericos, caracteres, cadenas, procedimientos, tuplas**
+	- Definicion/Invocacion de prodecimientos recursivos
 
-        - [ ] El paso de parametros sera por referencia para : **listas y registros**
+		- [ ] El lenguaje debe permitir la definicion e invocacion de procedimientos que puedan invocarse recursivamente.
 
-    - Variables actualizables (mutables)
+		- [ ] El paso de parametros sera por valor para : **valores numericos, caracteres, cadenas, procedimientos, tuplas**
 
-        - [ ] Se debe introducir una coleccion de variables actualizables y sus valores iniciales.
+		- [ ] El paso de parametros sera por referencia para : **listas y registros**
 
-        - [ ] Una variable actualizable puede ser actualizada cuantas veces sea necesario.
+	- Variables actualizables (mutables)
 
-        - [ ] Se realiza la declaracion de variables mutables (Por ejemplo `a = 5, b = 10;`)
+		- [ ] Se debe introducir una coleccion de variables actualizables y sus valores iniciales.
 
-        - [ ] Se realiza la declaracion para mutar variables (Por ejemplo `a -> 10;`)
+		- [ ] Una variable actualizable puede ser actualizada cuantas veces sea necesario.
 
-        - [ ] El intento de mutar una variable inmutable genera un error.
+		- [ ] Se realiza la declaracion de variables mutables (Por ejemplo `a = 5, b = 10;`)
 
-    - Secuenciacion
+		- [ ] Se realiza la declaracion para mutar variables (Por ejemplo `a -> 10;`)
 
-        - [ ] El lenguaje debera permitir expresiones para la creacion de bloques de instrucciones
+		- [ ] El intento de mutar una variable inmutable genera un error.
 
-    - Iteracion
+	- Secuenciacion
 
-        - [ ] Se permite la definicion de estructuras **while** y **for**. 
+		- [ ] El lenguaje debera permitir expresiones para la creacion de bloques de instrucciones
 
-        - [ ] Se agrega la funcionalidad de imprimir en pantalla tipo **print**.
+	- Iteracion
+
+		- [ ] Se permite la definicion de estructuras **while** y **for**.
+
+		- [ ] Se agrega la funcionalidad de imprimir en pantalla tipo **print**.

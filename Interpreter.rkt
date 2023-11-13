@@ -31,6 +31,6 @@
 
 (scan&parse "
 int main() {
-    \"t\"
+	{hello = 5; bye = 10}
 }
 ")
