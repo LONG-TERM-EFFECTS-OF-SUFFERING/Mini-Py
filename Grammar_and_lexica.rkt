@@ -11,12 +11,12 @@
 (define lexica '(
 	(white-sp (whitespace) skip)
 	(comment ("//" (arbno (not #\newline))) skip) ; Comments
-    (comment (#\# (arbno (not #\#)) #\#) skip) ; Comment in block
-	(identifier (letter (arbno (or letter digit "?"))) symbol)
+	(comment ("/*" (arbno (not #\*/)) "*/") skip) ; Block comments
+	(identifier ("#" letter (arbno (or letter digit "?"))) symbol)
 	(number (digit (arbno digit)) number) ; Positive int numbers
 	(number ("-" digit (arbno digit)) number) ; Negative int numbers
 	(number (digit (arbno digit) "." digit (arbno digit)) number) ; Positive float numbers
-	(number ("-" digit (arbno digit) "." digit (arbno digit)) number) ; Negative float numbersdd
+	(number ("-" digit (arbno digit) "." digit (arbno digit)) number) ; Negative float numbers
 	(text ((or letter "-") (arbno (or letter digit "-" "?" ":"))) string)
 ))
 
@@ -49,13 +49,40 @@
 		letrec-exp)
 	(expression ("proc" "(" (separated-list identifier ",") ")" expression) proc-exp)
 
-	(expression (primitive "(" (separated-list expression ",") ")" ) primapp-exp)
-	(expression ("if" expression "then" expression "else" expression) if-exp)
 
+	(expression (primitive "(" (separated-list expression ",") ")" ) primapp-exp)
 	(expression ("(" expression (arbno expression) ")") app-exp)
-	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
 	(expression ("set" identifier "=" expression) set-exp)
 
+	; ------------------------------- COMPARATORS ------------------------------ ;
+
+	(comparator-prim ("") smaller-than-comparator-prim)
+	(comparator-prim (">") greater-than-comparator-prim)
+	(comparator-prim ("<=") less-equal-to-comparator-prim)
+	(comparator-prim (">=") greater-equal-to-comparator-prim)
+	(comparator-prim ("==") equal-to-comparator-prim)
+	(comparator-prim ("!=") not-equal-to-comparator-prim)
+
+	; ------------------------ BOOLEAN BINARY OPERATORS ------------------------ ;
+
+	(bool-binary-operator ("and") and-bool-binary-operator)
+	(bool-binary-operator ("or") or-bool-binary-operator)
+
+	; -------------------------- BOOL UNARY OPERATORS -------------------------- ;
+
+	(bool-unary-operator ("not") negation-bool-unary-operator)
+
+	; --------------------------- CONTROL STRUCTURES --------------------------- ;
+
+	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
+	(expression ("if" expression "then" expression "else" expression) if-exp)
+	(expression ("while" "(" expression ")" "{" expression "}") while-exp)
+	(expression ("for" identifier "=" expression iterator expression "{" expression "}") for-exp)
+
+	; -------------------------------- ITERATORS ------------------------------- ;
+
+	(iterator ("to") to-iterator)
+	(iterator ("downto") downto-iterator)
 
 	; ------------------------------- PRIMITIVES ------------------------------- ;
 

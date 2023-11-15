@@ -3,45 +3,69 @@
 ## Grammar specification
 
 ```
-<program>           := int main() { <expression> }
+<program>              := int main() { <expression> }
                         a-program (exp)
 
-<expression>        := <number>
+<expression>           := <number>
                        lit-number (num)
 
-                    := x16 ({ <number> }+)
+                       := x16 ({ <number> }+)
                        hex-exp (numbers)
 
-                    := <identifier>
+                       := <identifier>
                        var-exp (id)
 
-                    := "<text>"
+                       := "<text>"
                        lit-text (txt)
 
-                    := "true"
+                       := "true"
                         true-exp
 
-                    := "false"
+                       := "false"
                         false-exp
 
-                    := list( { <expression> }* (,))
+                       := list( { <expression> }* (,))
                        list-exp (exps)
 
-                    := tuple({ <expression> }* (,))
+                       := tuple({ <expression> }* (,))
                        tuple-exp (exps)
 
-                    := {{ <text> = <expression> ;}* <text> = <expression>}
+                       := {{ <text> = <expression> ;}* <text> = <expression>}
                        record-exp (exps)
 
-                    := var { <identifier> = <expression> }* in <expression>
+                       := var { <identifier> = <expression> }* in <expression>
                        let-exp (identifiers bodies body)
 
-                    := const { <identifier> = <expression> }* in <expression>
+                       := const { <identifier> = <expression> }* in <expression>
                        const-exp (identifiers bodies body)
 
-                    := rec { <identifier> ({ identifier }* (,)) = <expression> }* in <expression>
+                       := rec { <identifier> ({ identifier }* (,)) = <expression> }* in <expression>
                        letrec-exp (procedures-names procedures-arguments procedures-bodies body)
 
-                    := proc({ <identifier> }* (,)) <expression>
-                    := proc-exp (procedure-arguments body)
+                       := proc({ <identifier> }* (,)) <expression>
+                       proc-exp (procedure-arguments body)
+
+<comparator-prim>      := <
+                       smaller-than-comparator-prim ()
+
+                       := >
+                       greater-than-comparator-prim ()
+
+                       := <=
+                       less-equal-to-comparator-prim ()
+
+                       := >=
+                       greater-equal-to-comparator-prim ()
+
+                       := ==
+                       equal-to-comparator-prim ()
+
+                       := !=
+                       not-equal-to-comparator-prim ()
+
+<bool-binary-operator> := and
+                          and-bool-binary-operator ()
+
+                       := or
+                          or-bool-binary-operator ()
 ```
