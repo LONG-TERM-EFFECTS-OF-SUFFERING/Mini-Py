@@ -50,27 +50,26 @@
 	(expression ("proc" "(" (separated-list identifier ",") ")" expression) proc-exp)
 
 
-	(expression (primitive "(" (separated-list expression ",") ")" ) primapp-exp)
 	(expression ("(" expression (arbno expression) ")") app-exp)
 	(expression ("set" identifier "=" expression) set-exp)
 
 	; ------------------------------- COMPARATORS ------------------------------ ;
 
-	(comparator-prim ("") smaller-than-comparator-prim)
-	(comparator-prim (">") greater-than-comparator-prim)
-	(comparator-prim ("<=") less-equal-to-comparator-prim)
-	(comparator-prim (">=") greater-equal-to-comparator-prim)
-	(comparator-prim ("==") equal-to-comparator-prim)
-	(comparator-prim ("!=") not-equal-to-comparator-prim)
+	(comparator_prim ("") smaller-than-comparator-prim)
+	(comparator_prim (">") greater-than-comparator-prim)
+	(comparator_prim ("<=") less-equal-to-comparator-prim)
+	(comparator_prim (">=") greater-equal-to-comparator-prim)
+	(comparator_prim ("==") equal-to-comparator-prim)
+	(comparator_prim ("!=") not-equal-to-comparator-prim)
 
 	; ------------------------ BOOLEAN BINARY OPERATORS ------------------------ ;
 
-	(bool-binary-operator ("and") and-bool-binary-operator)
-	(bool-binary-operator ("or") or-bool-binary-operator)
+	(bool_binary_operator ("and") and-bool-binary-operator)
+	(bool_binary_operator ("or") or-bool-binary-operator)
 
 	; -------------------------- BOOL UNARY OPERATORS -------------------------- ;
 
-	(bool-unary-operator ("not") negation-bool-unary-operator)
+	(bool_unary_operator ("not") negation-bool-unary-operator)
 
 	; --------------------------- CONTROL STRUCTURES --------------------------- ;
 
@@ -91,6 +90,55 @@
 	(primitive ("*") mult-prim)
 	(primitive ("add1") incr-prim)
 	(primitive ("sub1") decr-prim)
+
+	(expression (primitive "(" (separated-list expression ",") ")" ) primapp-exp)
+
+	; ---------------------------- STRING PRIMITIVES --------------------------- ;
+
+	(unary_string_primitive ("my-length") length-string-prim)
+
+	(binary_string_primitive ("my-concat") concat-string-prim)
+
+	; ----------------------------- LIST PRIMITIVES ---------------------------- ;
+
+	(unary_list_primitive ("empty-list?") is-empty-list-prim)
+	(unary_list_primitive ("empty-list") empty-list-prim)
+	(unary_list_primitive ("list?") is-list-prim)
+	(unary_list_primitive ("head-list") head-list-prim)
+	(unary_list_primitive ("tail-list") tail-list-prim)
+
+	(list_primitive ("create-list" "(" (separated-list expression ",") ")" ) create-list-prim)
+	(list_primitive ("append") append-list-prim)
+	(list_primitive ("ref-list") ref-list-prim)
+	(list_primitive ("set-list") set-list-prim)
+
+	(expression (unary_list_primitive "(" expression ")" ) unary_list_primitive-app-exp)
+	(expression (list_primitive "(" (separated-list expression ",") ")" ) list_primitive-app-exp) ; Pending
+
+	; ---------------------------- TUPLES PRIMITIVES --------------------------- ;
+
+	(unary_tuple_primitive ("empty-tuple?") is-empty-tuple-prim)
+	(unary_tuple_primitive ("empty-ttuple") empty-tuple-prim)
+	(unary_tuple_primitive ("tuple?") is-tuple-prim)
+	(unary_tuple_primitive ("head-tuple") head-tuple-prim)
+	(unary_tuple_primitive ("tail-tuple") head-tuple-prim)
+
+	(tuple_primitive ("create-tuple" "(" expression "," expression ")" ) create-tuple-prim)
+	(tuple_primitive ("ref-tuple") ref-tuple-prim)
+
+	(expression (unary_tuple_primitive "(" expression ")" ) unary_tuple_primitive-app-exp)
+	(expression (tuple_primitive "(" (separated-list expression ",") ")" ) tuple_primitive-app-exp) ; Pending
+
+	; --------------------------- RECORDS PRIMITIVES --------------------------- ;
+
+	(unary_record_primitive ("record?") is-record-prim)
+
+	; (record_primitive ("create-record" "(" record ")") create-record-prim) ; Pending
+	(record_primitive ("ref-record") ref-record-prim)
+	(record_primitive ("set-record") set-record-prim)
+
+	(expression (unary_record_primitive "(" expression ")" ) unary_record_primitive-app-exp) ; Pending
+	(expression (record_primitive "(" (separated-list expression ",") ")" ) record_primitive-app-exp) ; Pending
 ))
 
 ; -------------------------------------------------------------------------- ;

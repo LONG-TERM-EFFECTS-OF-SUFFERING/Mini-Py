@@ -60,13 +60,13 @@
 
 	- Estructuras de control
 
-		- [ ] begin-end
+		- [X] begin-end
 
-		- [ ] if-then-else
+		- [X] if-then-else
 
-		- [ ] while-do
+		- [X] while-do
 
-		- [ ] for-do
+		- [X] for-do
 
 	- Primitiva aritmetica para enteros
 
@@ -108,58 +108,57 @@
 
 		- [ ] sub1h
 
-
 	- Primitivas sobre cadenas
 
-		- [ ] length
+		- [x] length
 
-		- [ ] concat
+		- [x] concat
 
 	- Primitivas sobre listas (recordar que las listas son mutables)
 
-		- [ ] empty? : list -> bool
+		- [X] empty? : list -> bool
 
-		- [ ] empty : list
+		- [X] empty : list
 
-		- [ ] create-list : list
+		- [X] create-list : list
 
-		- [ ] list? : list -> bool
+		- [X] list? : list -> bool
 
-		- [ ] head : list -> value
+		- [X] head : list -> value
 
-		- [ ] tail : list -> value
+		- [X] tail : list -> value
 
-		- [ ] append : list, value -> list : Agrega un elemento al final de la lista
+		- [X] append : list, value -> list : Agrega un elemento al final de la lista
 
-		- [ ] ref-list : list, int -> value
+		- [X] ref-list : list, int -> value
 
-		- [ ] set-list : list, int, value -> list
+		- [X] set-list : list, int, value -> list
 
 	- Primitivas sobre tuplas. (Recordar que son inmutables)
 
-		- [ ] empty-tuple? : tuple -> bool
+		- [x] empty-tuple? : tuple -> bool
 
-		- [ ] empty-tuple : tuple
+		- [x] empty-tuple : tuple
 
-		- [ ] create-tuple : tuple
+		- [x] create-tuple : tuple
 
-		- [ ] tuple? : tuple -> bool
+		- [x] tuple? : tuple -> bool
 
-		- [ ] head-tuple : tuple -> value
+		- [x] head-tuple : tuple -> value
 
-		- [ ] tail-tuple : tuple -> value
+		- [x] tail-tuple : tuple -> value
 
-		- [ ] ref-tuple : tuple, int -> value
+		- [x] ref-tuple : tuple, int -> value
 
 	- Primitivas sobre registros. (Recordar que son mutables compuestas por conjuntos de claves y valor)
 
-		- [ ] dict? : dict -> bool
+		- [X] record? : record -> bool
 
-		- [ ] create-dict : dict
+		- [X] create-record : record
 
-		- [ ] ref-dict : dict, key -> value : Retorna el valor asociado a la clave
+		- [X] ref-record : record, key -> value : Retorna el valor asociado a la clave
 
-		- [ ] set-dict : dict, key, value -> dict : Asocia una clave con un valor
+		- [X] set-record : record, key, value -> record : Asocia una clave con un valor
 
 	- Definicion e invocacion de procedimientos
 
