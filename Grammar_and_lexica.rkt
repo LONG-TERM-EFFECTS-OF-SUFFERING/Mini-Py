@@ -27,20 +27,33 @@
 (define grammar '(
 	(program ("int" "main" "(" ")" "{" expression "}") a-program)
 
-	; ---------------------------------- DATA ---------------------------------- ;
+	; -------------------------------------------------------------------------- ;
+	;                                    DATA                                    ;
+	; -------------------------------------------------------------------------- ;
 
 	(expression (number) lit-number)
 	; (expression ("x" number "(" (separated-list number ",") ")") bignum-exp)
-	(expression ("x16" "(" (separated-list number ",") ")") hex-exp)
+
+	(a-hex-exp ("x16" "(" (separated-list number ",") ")") a-hex-exp_)
+	(expression (a-hex-exp) hex-exp)
+
 	(expression (identifier) var-exp)
 	(expression ("\"" text "\"") lit-text)
 	(expression ("true") true-exp)
 	(expression ("false") false-exp)
-	(expression ("list" "(" (separated-list number ",") ")") list-exp)
-	(expression ("tuple" "(" (separated-list number ",") ")") tuple-exp)
-	(expression ("{" text "=" expression (arbno ";" text "=" expression) "}") record-exp)
 
-	; ------------------------------- DEFINITIONS ------------------------------ ;
+	(a-list-exp ("list" "(" (separated-list number ",") ")") a-list-exp_)
+	(expression (a-list-exp) list-exp)
+
+	(a-tuple-exp ("tuple" "(" (separated-list number ",") ")") a-tuple-exp_)
+	(expression (a-tuple-exp) tuple-exp)
+
+	(a-dictionary-exp ("{" text "=" expression (arbno ";" text "=" expression) "}") a-dictionary-exp_)
+	(expression (a-dictionary-exp) dictionary-exp)
+
+	; -------------------------------------------------------------------------- ;
+	;                                 DEFINITIONS                                ;
+	; -------------------------------------------------------------------------- ;
 
 	(expression ("var" (arbno identifier "=" expression) "in" expression) let-exp)
 	(expression ("const" (arbno identifier "=" expression) "in" expression) const-exp)
@@ -53,6 +66,10 @@
 	(expression ("(" expression (arbno expression) ")") app-exp)
 	(expression ("set" identifier "=" expression) set-exp)
 
+	; -------------------------------------------------------------------------- ;
+	;                                   BOLEANS                                  ;
+	; -------------------------------------------------------------------------- ;
+
 	; ------------------------------- COMPARATORS ------------------------------ ;
 
 	(comparator_prim ("") smaller-than-comparator-prim)
@@ -62,20 +79,34 @@
 	(comparator_prim ("==") equal-to-comparator-prim)
 	(comparator_prim ("!=") not-equal-to-comparator-prim)
 
-	; ------------------------ BOOLEAN BINARY OPERATORS ------------------------ ;
+	; --------------------------------- ATOMIC --------------------------------- ;
+
+	(atomic-boolean ("true") true-boolean)
+	(atomic-boolean ("false") false-boolean)
+
+	; ---------------------------- BINARY OPERATORS ---------------------------- ;
 
 	(bool_binary_operator ("and") and-bool-binary-operator)
 	(bool_binary_operator ("or") or-bool-binary-operator)
 
-	; -------------------------- BOOL UNARY OPERATORS -------------------------- ;
+	; ----------------------------- UNARY OPERATORS ---------------------------- ;
 
 	(bool_unary_operator ("not") negation-bool-unary-operator)
 
-	; --------------------------- CONTROL STRUCTURES --------------------------- ;
+	; ------------------------------- EXPRESSIONS ------------------------------ ;
+
+	(boolean-expression (atomic-boolean) atomic-boolean-exp)
+	(boolean-expression (bool_binary_operator "(" boolean-expression "," boolean-expression ")" ) app-binary-boolean-operator-exp)
+	(boolean-expression (bool_unary_operator "(" boolean-expression ")" ) app-unary-boolean-operator-exp)
+	(boolean-expression (comparator_prim "(" expression "," expression ")" ) app-comparator-boolean-exp)
+
+	; -------------------------------------------------------------------------- ;
+	;                             CONTROL STRUCTURES                             ;
+	; -------------------------------------------------------------------------- ;
 
 	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
 	(expression ("if" expression "then" expression "else" expression) if-exp)
-	(expression ("while" "(" expression ")" "{" expression "}") while-exp)
+	(expression ("while" "(" boolean-expression ")" "{" expression "}") while-exp)
 	(expression ("for" identifier "=" expression iterator expression "{" expression "}") for-exp)
 
 	; -------------------------------- ITERATORS ------------------------------- ;
@@ -83,27 +114,51 @@
 	(iterator ("to") to-iterator)
 	(iterator ("downto") downto-iterator)
 
-	; ------------------------------- PRIMITIVES ------------------------------- ;
+	; -------------------------------------------------------------------------- ;
+	;                                 PRIMITIVES                                 ;
+	; -------------------------------------------------------------------------- ;
 
-	(primitive ("+") add-prim)
-	(primitive ("-") substract-prim)
-	(primitive ("*") mult-prim)
-	(primitive ("add1") incr-prim)
-	(primitive ("sub1") decr-prim)
+	; ----------------------------------- INT ---------------------------------- ;
 
-	(expression (primitive "(" (separated-list expression ",") ")" ) primapp-exp)
+	(int-primitive ("+i") int-add-prim)
+	(int-primitive ("-i") int-substract-prim)
+	(int-primitive ("*i") int-mult-prim)
+	(int-primitive ("add1i") int-incr-prim)
+	(int-primitive ("sub1i") int-decr-prim)
 
-	; ---------------------------- STRING PRIMITIVES --------------------------- ;
+	(expression (int-primitive "(" (separated-list expression ",") ")" ) app-int-prim-exp)
+
+	; ---------------------------------- FLOAT --------------------------------- ;
+
+	(float-primitive ("+f") float-add-prim)
+	(float-primitive ("-f") float-substract-prim)
+	(float-primitive ("*f") float-mult-prim)
+	(float-primitive ("add1f") float-incr-prim)
+	(float-primitive ("sub1f") float-decr-prim)
+
+	(expression (float-primitive "(" (separated-list expression ",") ")" ) app-float-prim-exp)
+
+	; ------------------------------ HEXADECIMALS ------------------------------ ;
+
+	(hex-primitive ("+h") hex-add-prim)
+	(hex-primitive ("-h") hex-substract-prim)
+	(hex-primitive ("*h") hex-mult-prim)
+	(hex-primitive ("add1h") hex-incr-prim)
+	(hex-primitive ("sub1h") hex-decr-prim)
+
+	(expression (hex-primitive "(" (separated-list expression ",") ")" ) app-hex-prim-exp)
+
+	; --------------------------------- STRING --------------------------------- ;
 
 	(unary_string_primitive ("my-length") length-string-prim)
 
 	(binary_string_primitive ("my-concat") concat-string-prim)
 
-	; ----------------------------- LIST PRIMITIVES ---------------------------- ;
+	; ---------------------------------- LIST ---------------------------------- ;
 
 	(unary_list_primitive ("empty-list?") is-empty-list-prim)
 	(unary_list_primitive ("empty-list") empty-list-prim)
-	(unary_list_primitive ("list?") is-list-prim)
+	(unary_list_primitive ("my-list?") is-list-prim)
 	(unary_list_primitive ("head-list") head-list-prim)
 	(unary_list_primitive ("tail-list") tail-list-prim)
 
@@ -115,7 +170,7 @@
 	(expression (unary_list_primitive "(" expression ")" ) unary_list_primitive-app-exp)
 	(expression (list_primitive "(" (separated-list expression ",") ")" ) list_primitive-app-exp) ; Pending
 
-	; ---------------------------- TUPLES PRIMITIVES --------------------------- ;
+	; --------------------------------- TUPLES --------------------------------- ;
 
 	(unary_tuple_primitive ("empty-tuple?") is-empty-tuple-prim)
 	(unary_tuple_primitive ("empty-ttuple") empty-tuple-prim)
@@ -129,13 +184,13 @@
 	(expression (unary_tuple_primitive "(" expression ")" ) unary_tuple_primitive-app-exp)
 	(expression (tuple_primitive "(" (separated-list expression ",") ")" ) tuple_primitive-app-exp) ; Pending
 
-	; --------------------------- RECORDS PRIMITIVES --------------------------- ;
+	; --------------------------------- RECORDS -------------------------------- ;
 
-	(unary_record_primitive ("record?") is-record-prim)
+	(unary_record_primitive ("dictionary?") is-dictionary-prim)
 
-	; (record_primitive ("create-record" "(" record ")") create-record-prim) ; Pending
-	(record_primitive ("ref-record") ref-record-prim)
-	(record_primitive ("set-record") set-record-prim)
+	(record_primitive ("create-dictionary" "(" a-dictionary-exp ")") create-dictionary-prim) ; Pending
+	(record_primitive ("ref-dictionary") ref-dictionary-prim)
+	(record_primitive ("set-dictionary") set-dictionary-prim)
 
 	(expression (unary_record_primitive "(" expression ")" ) unary_record_primitive-app-exp) ; Pending
 	(expression (record_primitive "(" (separated-list expression ",") ")" ) record_primitive-app-exp) ; Pending

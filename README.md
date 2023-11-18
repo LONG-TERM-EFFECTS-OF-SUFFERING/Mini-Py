@@ -4,48 +4,78 @@
 
 ```
 <program>              := int main() { <expression> }
-                        a-program (exp)
+                          a-program (exp)
+
+<a-hex-exp>            := x16 ({ <number> }+)
+                          a-hex-exp_ (numbers)
+
+<a-list-exp>           := list( { <expression> }* (,))
+                          a-list-exp_ (exps)
+
+<a-tuple-exp>          := tuple({ <expression> }* (,))
+                          a-tuple-exp_ (exps)
+
+<a-dictionary-exp>     := {{ <text> = <expression> ;}* <text> = <expression>}
+                          a-dictionary-exp_ (key value keys values)
 
 <expression>           := <number>
-                       lit-number (num)
+                          lit-number (num)
 
-                       := x16 ({ <number> }+)
-                       hex-exp (numbers)
+                       := <a-hex-exp>
+                          hex-exp ()
 
                        := <identifier>
-                       var-exp (id)
+                          var-exp (id)
 
                        := "<text>"
-                       lit-text (txt)
+                          lit-text (txt)
 
                        := "true"
-                        true-exp
+                           true-exp
 
                        := "false"
-                        false-exp
+                          false-exp
 
-                       := list( { <expression> }* (,))
-                       list-exp (exps)
+                       := <a-list-exp>
+                          list-exp ()
 
-                       := tuple({ <expression> }* (,))
-                       tuple-exp (exps)
+                       := <a-tuple-exp>
+                           tuple-exp ()
 
-                       := {{ <text> = <expression> ;}* <text> = <expression>}
-                       record-exp (exps)
+                       := <a-dictionary-exp>
+                          dictionary-exp ()
 
                        := var { <identifier> = <expression> }* in <expression>
-                       let-exp (identifiers bodies body)
+                          let-exp (identifiers bodies body)
 
                        := const { <identifier> = <expression> }* in <expression>
-                       const-exp (identifiers bodies body)
+                          const-exp (identifiers bodies body)
 
                        := rec { <identifier> ({ identifier }* (,)) = <expression> }* in <expression>
-                       letrec-exp (procedures-names procedures-arguments procedures-bodies body)
+                          letrec-exp (procedures-names procedures-arguments procedures-bodies body)
 
                        := proc({ <identifier> }* (,)) <expression>
-                       proc-exp (procedure-arguments body)
+                          proc-exp (procedure-arguments body)
 
-<comparator-prim>      := <
+                       := (<expression> { <expression> }*)
+                          app-exp (rator rands)
+
+                       := set <identifier> = <expression>
+                          set-exp (identifier expression)
+
+                       := begin <expression> { ; <expression> }*
+                          begin-exp (expression expressions)
+
+                       := if <expression> then <expression> else <expression>
+                          if-exp (test-exp true-exp false-exp)
+
+                       := while (<boolean-expression>) { <expression> }
+                          while-exp (boolean-exp body)
+
+                       := for <identifier> = <expression> <iterator> <expression> { <expression> }
+                          for-exp (var initialization iterator body)
+
+<comparator_prim>      := <
                        smaller-than-comparator-prim ()
 
                        := >
@@ -63,9 +93,30 @@
                        := !=
                        not-equal-to-comparator-prim ()
 
-<bool-binary-operator> := and
+<boolean>              := true
+                          true-boolean-exp ()
+
+                       := false
+                          false-boolean-exp ()
+
+<bool_binary_operator> := and
                           and-bool-binary-operator ()
 
                        := or
                           or-bool-binary-operator ()
+
+<bool_unary_operator>  := not
+                          negation-bool-unary-operator ()
+
+<boolean-expression>   := <boolean>
+                          atomic-boolean-exp ()
+
+                       := <bool_binary_operator> ( <boolean-expression> , <boolean-expression> )
+                          app-binary-boolean-operator-exp (rator rand1 rand2)
+
+                       := <bool_unary_operator> ( <boolean-expression> )
+                          app-unary-boolean-operator-exp (rator rand)
+
+                       := <comparator_prim> ( <expression> , <expression> )
+                          app-comparator-boolean-exp (rator rand1 rand2)
 ```

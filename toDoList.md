@@ -70,43 +70,43 @@
 
 	- Primitiva aritmetica para enteros
 
-		- [ ] +e
+		- [X] +i
 
-		- [ ] -e
+		- [X] -i
 
-		- [ ] *e
+		- [X] *i
 
-		- [ ] /e
+		- [X] /i
 
-		- [ ] add1e
+		- [X] add1i
 
-		- [ ] sub1e
+		- [X] sub1i
 
 	- Primitiva aritmetica para flotantes
 
-		- [ ] +f
+		- [X] +f
 
-		- [ ] -f
+		- [X] -f
 
-		- [ ] *f
+		- [X] *f
 
-		- [ ] /f
+		- [X] /f
 
-		- [ ] add1f
+		- [X] add1f
 
-		- [ ] sub1f
+		- [X] sub1f
 
 	- Primitiva aritmetica para hexadecimales
 
-		- [ ] +h
+		- [X] +h
 
-		- [ ] -h
+		- [X] -h
 
-		- [ ] *h
+		- [X] *h
 
-		- [ ] add1h
+		- [X] add1h
 
-		- [ ] sub1h
+		- [X] sub1h
 
 	- Primitivas sobre cadenas
 
@@ -152,13 +152,13 @@
 
 	- Primitivas sobre registros. (Recordar que son mutables compuestas por conjuntos de claves y valor)
 
-		- [X] record? : record -> bool
+		- [X] dictionary? : dictionary -> bool
 
-		- [X] create-record : record
+		- [X] create-dictionary : dictionary
 
-		- [X] ref-record : record, key -> value : Retorna el valor asociado a la clave
+		- [X] ref-dictionary : dictionary, key -> value : Retorna el valor asociado a la clave
 
-		- [X] set-record : record, key, value -> record : Asocia una clave con un valor
+		- [X] set-dictionary : dictionary, key, value -> dictionary : Asocia una clave con un valor
 
 	- Definicion e invocacion de procedimientos
 
