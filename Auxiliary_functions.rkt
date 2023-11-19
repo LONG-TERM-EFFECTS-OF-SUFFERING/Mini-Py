@@ -37,10 +37,11 @@
 (define my-length (
 	lambda (list) (
 		cond
-			[(empty? list 0)]
-			[else 1 + (my-length (cdr list))]
+			[(empty? list) 0]
+			[else (+ 1 (my-length (cdr list)))]
 	)
 ))
+
 
 (define iota (
 	lambda(end) (
