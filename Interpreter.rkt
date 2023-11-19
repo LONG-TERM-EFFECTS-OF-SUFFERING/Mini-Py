@@ -133,11 +133,89 @@
 	)
 ))
 
+; -------------------------------------------------------------------------- ;
+;                                  BOOLEANS                                  ;
+; -------------------------------------------------------------------------- ;
+
+(define eval-atomic_boolean (
+	lambda (expression) (
+		cases atomic_boolean expression
+			(true-boolean () #t)
+			(false-boolean () #f)
+			(else (eopl:error "~s invalid atomic_boolean expression" expression))
+	)
+))
+
+
+(define apply-binary-boolean-operator (
+	lambda (rator rand1 rand2 env) (
+		let (
+			(evaluated-rand1 (eval-boolean_expression rand1 env))
+			(evaluated-rand2 (eval-boolean_expression rand2 env))
+		)
+			(cases bool_binary_operator rator
+				(and-bool-binary-operator () (and evaluated-rand1 evaluated-rand2))
+				(or-bool-binary-operator () (or evaluated-rand1 evaluated-rand2))
+				(else (eopl:error "~s invalid bool_binary_operator expression" rator))
+			)
+	)
+))
+
+
+(define apply-unary-boolean-operator (
+	lambda (rator rand env) (
+		let (
+			(evaluated-rand (eval-boolean_expression rand env))
+		)
+		(cases bool_unary_operator rator
+			(negation-bool-unary-operator () (not evaluated-rand))
+			(else (eopl:error "~s invalid bool_unary_operator expression" rator))
+		)
+	)
+))
+
+
+(define apply-comparator-boolean (
+	lambda (rator rand1 rand2 env) (
+		let (
+			(evaluated-rand1 (eval-expression rand1 env))
+			(evaluated-rand2 (eval-expression rand2 env))
+		)
+			(cases comparator_prim rator
+				(smaller-than-comparator-prim () (< evaluated-rand1 evaluated-rand2))
+				(greater-than-comparator-prim () (> evaluated-rand1 evaluated-rand2))
+				(less-equal-to-comparator-prim () (<= evaluated-rand1 evaluated-rand2))
+				(greater-equal-to-comparator-prim () (>= evaluated-rand1 evaluated-rand2))
+				(equal-to-comparator-prim () (eqv? evaluated-rand1 evaluated-rand2))
+				(not-equal-to-comparator-prim () (not (eqv? evaluated-rand1 evaluated-rand2)))
+				(else (eopl:error "~s invalid comparator_prim expression" rator))
+			)
+		)
+	)
+)
+
+
+(define eval-boolean_expression (
+	lambda (expression env) (
+		cases boolean_expression expression
+			(atomic-boolean-exp (atomic-boolean) (eval-atomic_boolean atomic-boolean))
+			(app-binary-boolean-operator-exp (rator rand1 rand2) (apply-binary-boolean-operator rator rand1 rand2 env))
+			(app-unary-boolean-operator-exp (rator rand) (apply-unary-boolean-operator rator rand env))
+			(app-comparator-boolean-exp (rator rand1 rand2) (apply-comparator-boolean rator rand1 rand2 env))
+			(else (eopl:error "~s invalid boolean_expression expression" expression))
+	)
+))
+
+; -------------------------------------------------------------------------- ;
+
 (define eval-expression (
 	lambda (exp env) (
 		cases expression exp
 			(lit-number (number) number)
 			(hex-exp (a-hex-exp) (hex-to-decimal a-hex-exp))
+			(var-exp (identifier) (deref (apply-env env identifier)))
+			(lit-text (text) text)
+			(a-boolean_expression (boolean-expression) (eval-boolean_expression boolean-expression env))
 
 			; -------------------------------------------------------------------------- ;
 			;                                 PRIMITIVES                                 ;
@@ -173,7 +251,7 @@
 				)
 			)
 
-			(else (error "Invalid expression"))
+			(else (eopl:error "~s invalid expression" exp))
 	)
 ))
 
@@ -244,9 +322,12 @@
 	sllgen:make-rep-loop  "--> " (lambda (pgm) (eval-program  pgm)) (sllgen:make-stream-parser lexica grammar)
 ))
 
+(define test-exp "
+	int main() {
+		!=(3,3)
+	}
+")
 
-(eval-program (scan&parse "
-int main() {
-	+h(x16 (4, 5, 6), x16 (4, 5, 6))
-}
-"))
+(scan&parse test-exp)
+
+(eval-program (scan&parse test-exp))

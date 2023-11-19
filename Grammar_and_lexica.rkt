@@ -39,8 +39,6 @@
 
 	(expression (identifier) var-exp)
 	(expression ("\"" text "\"") lit-text)
-	(expression ("true") true-exp)
-	(expression ("false") false-exp)
 
 	(a-list-exp ("list" "(" (separated-list number ",") ")") a-list-exp_)
 	(expression (a-list-exp) list-exp)
@@ -72,7 +70,7 @@
 
 	; ------------------------------- COMPARATORS ------------------------------ ;
 
-	(comparator_prim ("") smaller-than-comparator-prim)
+	(comparator_prim ("<") smaller-than-comparator-prim)
 	(comparator_prim (">") greater-than-comparator-prim)
 	(comparator_prim ("<=") less-equal-to-comparator-prim)
 	(comparator_prim (">=") greater-equal-to-comparator-prim)
@@ -81,8 +79,8 @@
 
 	; --------------------------------- ATOMIC --------------------------------- ;
 
-	(atomic-boolean ("true") true-boolean)
-	(atomic-boolean ("false") false-boolean)
+	(atomic_boolean ("true") true-boolean)
+	(atomic_boolean ("false") false-boolean)
 
 	; ---------------------------- BINARY OPERATORS ---------------------------- ;
 
@@ -95,10 +93,12 @@
 
 	; ------------------------------- EXPRESSIONS ------------------------------ ;
 
-	(boolean-expression (atomic-boolean) atomic-boolean-exp)
-	(boolean-expression (bool_binary_operator "(" boolean-expression "," boolean-expression ")" ) app-binary-boolean-operator-exp)
-	(boolean-expression (bool_unary_operator "(" boolean-expression ")" ) app-unary-boolean-operator-exp)
-	(boolean-expression (comparator_prim "(" expression "," expression ")" ) app-comparator-boolean-exp)
+	(boolean_expression (atomic_boolean) atomic-boolean-exp)
+	(boolean_expression (bool_binary_operator "(" boolean_expression "," boolean_expression ")" ) app-binary-boolean-operator-exp)
+	(boolean_expression (bool_unary_operator "(" boolean_expression ")" ) app-unary-boolean-operator-exp)
+	(boolean_expression (comparator_prim "(" expression "," expression ")" ) app-comparator-boolean-exp)
+
+	(expression (boolean_expression) a-boolean_expression)
 
 	; -------------------------------------------------------------------------- ;
 	;                             CONTROL STRUCTURES                             ;
@@ -106,7 +106,7 @@
 
 	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
 	(expression ("if" expression "then" expression "else" expression) if-exp)
-	(expression ("while" "(" boolean-expression ")" "{" expression "}") while-exp)
+	(expression ("while" "(" boolean_expression ")" "{" expression "}") while-exp)
 	(expression ("for" identifier "=" expression iterator expression "{" expression "}") for-exp)
 
 	; -------------------------------- ITERATORS ------------------------------- ;
