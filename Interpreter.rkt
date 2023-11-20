@@ -218,6 +218,17 @@
 			(a-boolean_expression (boolean-expression) (eval-boolean_expression boolean-expression env))
 
 			; -------------------------------------------------------------------------- ;
+			;                             CONTROL STRUCTURES                             ;
+			; -------------------------------------------------------------------------- ;
+
+			(if-exp (test-exp true-exp false-exp)
+				(if (eval-expression test-exp env)
+					(eval-expression true-exp env)
+					(eval-expression false-exp env)
+				)
+			)
+
+			; -------------------------------------------------------------------------- ;
 			;                                 PRIMITIVES                                 ;
 			; -------------------------------------------------------------------------- ;
 
@@ -267,6 +278,8 @@
 			(int-add-prim () (+ (car args) (cadr args)))
 			(int-substract-prim () (- (car args) (cadr args)))
 			(int-mult-prim () (* (car args) (cadr args)))
+			(int-div-prim () (/ (car args) (cadr args)))
+			(int-module-prim () (remainder (car args) (cadr args)))
 			(int-incr-prim () (+ (car args) 1))
 			(int-decr-prim () (- (car args) 1))
 	)
@@ -280,6 +293,8 @@
 			(float-add-prim () (+ (car args) (cadr args)))
 			(float-substract-prim () (- (car args) (cadr args)))
 			(float-mult-prim () (* (car args) (cadr args)))
+			(float-div-prim () (/ (car args) (cadr args)))
+			(float-module-prim () (remainder (car args) (cadr args)))
 			(float-incr-prim () (+ (car args) 1))
 			(float-decr-prim () (- (car args) 1))
 	)
@@ -289,19 +304,9 @@
 
 (define hex-to-decimal (
 	lambda (hex) (
-		letrec (
-			(make-conversion (
-				lambda (numbers actual-exponent) (
-					cond
-					[(empty? numbers) 0]
-					[else (+ (* (car numbers) (expt 16 actual-exponent))
-						(make-conversion (cdr numbers) (- actual-exponent 1)))]
-				)
-			))
-		)
-		(cases a-hex-exp hex
-			(a-hex-exp_ (numbers) (make-conversion numbers (- (my-length numbers) 1)))
-			(else (eopl:error "~s is not a hexadecimal number" hex)))
+		cases a-hex-exp hex
+			(a-hex-exp_ (numbers) (number-to-decimal numbers 16))
+			(else (eopl:error "~s is not a hexadecimal number" hex))
 	)
 ))
 
@@ -324,7 +329,7 @@
 
 (define test-exp "
 	int main() {
-		!=(3,3)
+		if false then 5 else 4
 	}
 ")
 

@@ -122,9 +122,9 @@
 
 	(int-primitive ("+i") int-add-prim)
 	(int-primitive ("-i") int-substract-prim)
-  (int-primitive ("*i") int-mult-prim)
-  (int-primitive ("/i") int-div-prim)
-  (int-primitive ("%i") int-module-prim)
+	(int-primitive ("*i") int-mult-prim)
+	(int-primitive ("/i") int-div-prim)
+	(int-primitive ("%i") int-module-prim)
 	(int-primitive ("add1i") int-incr-prim)
 	(int-primitive ("sub1i") int-decr-prim)
 
@@ -135,8 +135,8 @@
 	(float-primitive ("+f") float-add-prim)
 	(float-primitive ("-f") float-substract-prim)
 	(float-primitive ("*f") float-mult-prim)
-  (float-primitive ("/f") float-div-prim)
-  (float-primitive ("%f") float-module-prim)
+	(float-primitive ("/f") float-div-prim)
+	(float-primitive ("%f") float-module-prim)
 	(float-primitive ("add1f") float-incr-prim)
 	(float-primitive ("sub1f") float-decr-prim)
 

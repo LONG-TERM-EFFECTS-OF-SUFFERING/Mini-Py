@@ -19,22 +19,16 @@
                           a-dictionary-exp_ (key value keys values)
 
 <expression>           := <number>
-                          lit-number (num)
+                          lit-number (number)
 
                        := <a-hex-exp>
-                          hex-exp ()
+                          hex-exp (a-hex-exp)
 
                        := <identifier>
-                          var-exp (id)
+                          var-exp (identifier)
 
                        := "<text>"
-                          lit-text (txt)
-
-                       := "true"
-                           true-exp
-
-                       := "false"
-                          false-exp
+                          lit-text (text)
 
                        := <a-list-exp>
                           list-exp ()
@@ -109,7 +103,7 @@
                           negation-bool-unary-operator ()
 
 <boolean-expression>   := <boolean>
-                          atomic-boolean-exp ()
+                          atomic-boolean-exp (atomic-boolean)
 
                        := <bool_binary_operator> ( <boolean-expression> , <boolean-expression> )
                           app-binary-boolean-operator-exp (rator rand1 rand2)
