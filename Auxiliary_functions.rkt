@@ -8,6 +8,15 @@
 ;                                  AUXILIAR                                  ;
 ; -------------------------------------------------------------------------- ;
 
+;; Objectvie: Returns the nth element of a list.
+;; Parameters:
+;; - list: The input list.
+;; - n: The index of the element to retrieve.
+;; Returns:
+;; - The nth element of the list.
+;; Examples:
+;; (nth-element '(1 2 3 4 5) 2) ; returns 3
+;;
 (define nth-element (
 	lambda (list n) (
 		cond
@@ -17,6 +26,14 @@
 ))
 
 
+;; Objective: Find the index of the first occurrence of an element in a list.
+;; Parameters:
+;;   - element: The element to search for.
+;;   - list: The list to search in.
+;; Returns:
+;;   - The index of the first occurrence of the element in the list, or #f if the element is not found.
+;; Examples:
+;;   (index-of 2 '(1 2 3 4 5)) ; returns 1
 (define index-of (
 	lambda (element list) (
 		letrec (
@@ -34,6 +51,13 @@
 ))
 
 
+;; Objective: Compute the length of a given list.
+;; Parameters:
+;;   - list: The list for which the length needs to be computed.
+;; Returns: The length of the given list.
+;; Examples:
+;;   (my-length '()) => 0
+;;   (my-length '(1 2 3 4 5)) => 5
 (define my-length (
 	lambda (list) (
 		cond
@@ -43,6 +67,13 @@
 ))
 
 
+;; Objective: Generate a list of integers from 0 to the given end value.
+;; Parameters:
+;; - end: The end value of the list (inclusive).
+;; Returns: A list of integers from 0 to the given end value.
+;; Examples:
+;; (iota 0) => '()
+;; (iota 5) => '(0 1 2 3 4)
 (define iota (
 	lambda(end) (
 		letrec (
@@ -62,6 +93,13 @@
 ))
 
 
+;; Objective: Convert a number from a given base to decimal.
+;; Parameters:
+;;   - number: A list of digits representing the number in the given base.
+;;   - base: The base of the number.
+;; Returns: The decimal representation of the number.
+;; Examples:
+;;   (number-to-decimal '(2 11 4) 16) => 692
 (define number-to-decimal (
 	lambda (number base) (
 		letrec (
