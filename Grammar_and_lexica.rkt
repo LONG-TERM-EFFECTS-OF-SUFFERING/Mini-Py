@@ -38,7 +38,9 @@
 	(expression (a-hex-exp) hex-exp)
 
 	(expression (identifier) var-exp)
-	(expression ("\"" text "\"") lit-text)
+
+	(a-lit-text ("\"" text "\"") a-lit-text_)
+	(expression (a-lit-text) lit-text)
 
 	(a-list-exp ("list" "(" (separated-list number ",") ")") a-list-exp_)
 	(expression (a-list-exp) list-exp)
@@ -105,7 +107,7 @@
 	; -------------------------------------------------------------------------- ;
 
 	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
-	(expression ("if" expression "then" expression "else" expression) if-exp)
+	(expression ("if" boolean_expression "then" expression "else" expression) if-exp)
 	(expression ("while" "(" boolean_expression ")" "{" expression "}") while-exp)
 	(expression ("for" identifier "=" expression iterator expression "{" expression "}") for-exp)
 
@@ -154,9 +156,11 @@
 
 	; --------------------------------- STRING --------------------------------- ;
 
-	(unary_string_primitive ("my-length") length-string-prim)
+	(unary_string_primitive ("my-string-length") length-string-prim)
+	(expression (unary_string_primitive  "(" expression ")" ) app-unary-string-prim-exp)
 
-	(binary_string_primitive ("my-concat") concat-string-prim)
+	(binary_string_primitive ("my-string-concat") concat-string-prim)
+	(expression (binary_string_primitive "(" expression "," expression ")" ) app-binary-string-prim-exp)
 
 	; ---------------------------------- LIST ---------------------------------- ;
 

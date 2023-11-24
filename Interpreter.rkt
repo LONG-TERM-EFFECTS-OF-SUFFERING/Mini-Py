@@ -207,6 +207,35 @@
 ))
 
 ; -------------------------------------------------------------------------- ;
+;                                   STRING                                   ;
+; -------------------------------------------------------------------------- ;
+
+(define apply-unary-string-primitive (
+	lambda (rator rand) (
+		cases unary_string_primitive rator
+			(length-string-prim () (string-length rand))
+			(else (eopl:error "~s invalid unary_string_primitive expression" rator))
+	)
+))
+
+
+(define apply-binary-string-primitive (
+	lambda (rator rand1 rand2) (
+		cases binary_string_primitive rator
+			(concat-string-prim () (string-append rand1 rand2))
+			(else (eopl:error "~s invalid binary_string_primitive expression" rator))
+	)
+))
+
+
+(define eval-text-expression (
+	lambda (expression) (
+		cases a-lit-text expression
+			(a-lit-text_ (text) text)
+	)
+))
+
+; -------------------------------------------------------------------------- ;
 
 (define eval-expression (
 	lambda (exp env) (
@@ -214,7 +243,7 @@
 			(lit-number (number) number)
 			(hex-exp (a-hex-exp) (hex-to-decimal a-hex-exp))
 			(var-exp (identifier) (deref (apply-env env identifier)))
-			(lit-text (text) text)
+			(lit-text (a-lit-text) (eval-text-expression a-lit-text))
 			(a-boolean_expression (boolean-expression) (eval-boolean_expression boolean-expression env))
 
 			; -------------------------------------------------------------------------- ;
@@ -222,7 +251,7 @@
 			; -------------------------------------------------------------------------- ;
 
 			(if-exp (test-exp true-exp false-exp)
-				(if (eval-expression test-exp env)
+				(if (eval-boolean_expression test-exp env)
 					(eval-expression true-exp env)
 					(eval-expression false-exp env)
 				)
@@ -259,6 +288,25 @@
 						(args (eval-expressions rands env))
 					)
 					(apply-hex-primitive prim args)
+				)
+			)
+
+			; --------------------------------- STRING --------------------------------- ;
+
+			(app-unary-string-prim-exp (prim rand) (
+					let (
+						(evaluated-rand (eval-expression rand env))
+					)
+					(apply-unary-string-primitive prim evaluated-rand)
+				)
+			)
+
+			(app-binary-string-prim-exp (prim rand1 rand2) (
+					let (
+						(evaluated-rand1 (eval-expression rand1 env))
+						(evaluated-rand2 (eval-expression rand2 env))
+					)
+					(apply-binary-string-primitive prim evaluated-rand1 evaluated-rand2)
 				)
 			)
 
@@ -322,17 +370,19 @@
 	)
 ))
 
+; -------------------------------------------------------------------------- ;
 
 (define interpreter (
 	sllgen:make-rep-loop  "--> " (lambda (pgm) (eval-program  pgm)) (sllgen:make-stream-parser lexica grammar)
 ))
 
+
 (define test-exp "
 	int main() {
-		if false then 5 else 4
+		my-string-concat(\"Hello-\", \"world\")
 	}
 ")
 
-(scan&parse test-exp)
 
+(scan&parse test-exp)
 (eval-program (scan&parse test-exp))

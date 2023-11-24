@@ -3,114 +3,189 @@
 ## Grammar specification
 
 ```
-<program>              := int main() { <expression> }
-                          a-program (exp)
+<program>                := int main() { <expression> }
+                            a-program (exp)
 
-<a-hex-exp>            := x16 ({ <number> }+)
-                          a-hex-exp_ (numbers)
+<a-hex-exp>              := x16 ({ <number> }+)
+                            a-hex-exp_ (numbers)
 
-<a-list-exp>           := list( { <expression> }* (,))
-                          a-list-exp_ (exps)
+<a-lit-text>              := "text"
+                             a-lit-text_ (text)
 
-<a-tuple-exp>          := tuple({ <expression> }* (,))
-                          a-tuple-exp_ (exps)
+<a-list-exp>             := list( { <expression> }* (,))
+                            a-list-exp_ (exps)
 
-<a-dictionary-exp>     := {{ <text> = <expression> ;}* <text> = <expression>}
-                          a-dictionary-exp_ (key value keys values)
+<a-tuple-exp>            := tuple({ <expression> }* (,))
+                            a-tuple-exp_ (exps)
 
-<expression>           := <number>
-                          lit-number (number)
+<a-dictionary-exp>       := {{ <text> = <expression> ;}* <text> = <expression>}
+                            a-dictionary-exp_ (key value keys values)
 
-                       := <a-hex-exp>
-                          hex-exp (a-hex-exp)
+<expression>             := <number>
+                            lit-number (number)
 
-                       := <identifier>
-                          var-exp (identifier)
+                         := <a-hex-exp>
+                            hex-exp (a-hex-exp)
 
-                       := "<text>"
-                          lit-text (text)
+                         := <identifier>
+                            var-exp (identifier)
 
-                       := <a-list-exp>
-                          list-exp ()
+                         := <a-lit-text>
+                            lit-text (a-lit-text)
 
-                       := <a-tuple-exp>
-                           tuple-exp ()
+                         := <a-list-exp>
+                            list-exp ()
 
-                       := <a-dictionary-exp>
-                          dictionary-exp ()
+                         := <a-tuple-exp>
+                             tuple-exp ()
 
-                       := var { <identifier> = <expression> }* in <expression>
-                          let-exp (identifiers bodies body)
+                         := <a-dictionary-exp>
+                            dictionary-exp ()
 
-                       := const { <identifier> = <expression> }* in <expression>
-                          const-exp (identifiers bodies body)
+                         := var { <identifier> = <expression> }* in <expression>
+                            let-exp (identifiers bodies body)
 
-                       := rec { <identifier> ({ identifier }* (,)) = <expression> }* in <expression>
-                          letrec-exp (procedures-names procedures-arguments procedures-bodies body)
+                         := const { <identifier> = <expression> }* in <expression>
+                            const-exp (identifiers bodies body)
 
-                       := proc({ <identifier> }* (,)) <expression>
-                          proc-exp (procedure-arguments body)
+                         := rec { <identifier> ({ identifier }* (,)) = <expression> }* in <expression>
+                            letrec-exp (procedures-names procedures-arguments procedures-bodies body)
 
-                       := (<expression> { <expression> }*)
-                          app-exp (rator rands)
+                         := proc({ <identifier> }* (,)) <expression>
+                            proc-exp (procedure-arguments body)
 
-                       := set <identifier> = <expression>
-                          set-exp (identifier expression)
+                         := (<expression> { <expression> }*)
+                            app-exp (rator rands)
 
-                       := begin <expression> { ; <expression> }*
-                          begin-exp (expression expressions)
+                         := set <identifier> = <expression>
+                            set-exp (identifier expression)
 
-                       := if <expression> then <expression> else <expression>
-                          if-exp (test-exp true-exp false-exp)
+                         := begin <expression> { ; <expression> }*
+                            begin-exp (expression expressions)
 
-                       := while (<boolean-expression>) { <expression> }
-                          while-exp (boolean-exp body)
+                         := if <boolean-expression> then <expression> else <expression>
+                            if-exp (test-exp true-exp false-exp)
 
-                       := for <identifier> = <expression> <iterator> <expression> { <expression> }
-                          for-exp (var initialization iterator body)
+                         := while (<boolean-expression>) { <expression> }
+                            while-exp (boolean-exp body)
 
-<comparator_prim>      := <
+                         := for <identifier> = <expression> <iterator> <expression> { <expression> }
+                            for-exp (var initialization iterator body)
+
+                         := <int-primitive> ({ <expression> }* (,))
+                            app-int-prim-exp (rator rands)
+
+                         := <float-primitive> ({ <expression> }* (,))
+                            app-float-prim-exp (rator rands)
+
+                         := <hex-primitive> ({ <expression> }* (,))
+                            app-hex-prim-exp (rator rands)
+
+<int-primitive>          := +i
+                            int-add-prim ()
+
+                         := -i
+                            int-substract-prim ()
+
+                         := *i
+                            int-mult-prim ()
+
+                         := /i
+                            int-div-prim ()
+
+                         := %i
+                            int-module-prim ()
+
+                         := add1i
+                            int-incr-prim ()
+
+                         := sub1i
+                            int-decr-prim ()
+
+<float-primitive>          := +f
+                            float-add-prim ()
+
+                         := -f
+                            float-substract-prim ()
+
+                         := *f
+                            float-mult-prim ()
+
+                         := /f
+                            float-div-prim ()
+
+                         := %f
+                            float-module-prim ()
+
+                         := add1f
+                            float-incr-prim ()
+
+                         := sub1f
+                            float-decr-prim ()
+
+<hex-primitive>          := +h
+                            hex-add-prim ()
+
+                         := -h
+                            hex-substract-prim ()
+
+                         := *h
+                            hex-mult-prim ()
+
+                         := add1h
+                            hex-incr-prim ()
+
+                         := sub1h
+                            hex-decr-prim ()
+
+<comparator_prim>        := <
                        smaller-than-comparator-prim ()
 
-                       := >
+                         := >
                        greater-than-comparator-prim ()
 
-                       := <=
+                         := <=
                        less-equal-to-comparator-prim ()
 
-                       := >=
+                         := >=
                        greater-equal-to-comparator-prim ()
 
-                       := ==
+                         := ==
                        equal-to-comparator-prim ()
 
-                       := !=
+                         := !=
                        not-equal-to-comparator-prim ()
 
-<boolean>              := true
-                          true-boolean-exp ()
+<boolean>                := true
+                            true-boolean-exp ()
 
-                       := false
-                          false-boolean-exp ()
+                         := false
+                            false-boolean-exp ()
 
-<bool_binary_operator> := and
-                          and-bool-binary-operator ()
+<bool_binary_operator>   := and
+                            and-bool-binary-operator ()
 
-                       := or
-                          or-bool-binary-operator ()
+                         := or
+                            or-bool-binary-operator ()
 
-<bool_unary_operator>  := not
-                          negation-bool-unary-operator ()
+<bool_unary_operator>    := not
+                            negation-bool-unary-operator ()
 
-<boolean-expression>   := <boolean>
-                          atomic-boolean-exp (atomic-boolean)
+<boolean-expression>     := <boolean>
+                            atomic-boolean-exp (atomic-boolean)
 
-                       := <bool_binary_operator> ( <boolean-expression> , <boolean-expression> )
-                          app-binary-boolean-operator-exp (rator rand1 rand2)
+                         := <bool_binary_operator> ( <boolean-expression> , <boolean-expression> )
+                            app-binary-boolean-operator-exp (rator rand1 rand2)
 
-                       := <bool_unary_operator> ( <boolean-expression> )
-                          app-unary-boolean-operator-exp (rator rand)
+                         := <bool_unary_operator> ( <boolean-expression> )
+                            app-unary-boolean-operator-exp (rator rand)
 
-                       := <comparator_prim> ( <expression> , <expression> )
-                          app-comparator-boolean-exp (rator rand1 rand2)
+                         := <comparator_prim> ( <expression> , <expression> )
+                            app-comparator-boolean-exp (rator rand1 rand2)
+
+<unary_string_primitive> := my-string-length
+                            length-string-prim ()
+
+<binary_string_primitive> := my-string-concat
+                             concat-string-prim ()
 ```
