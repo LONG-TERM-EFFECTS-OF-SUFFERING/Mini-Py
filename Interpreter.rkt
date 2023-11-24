@@ -16,12 +16,23 @@
 		(symbols (list-of symbol?))
 		(vec vector?)
 		(env environment?))
+	(extended-const-environment
+		(symbols (list-of symbol?))
+		(vec vector?)
+		(env environment?))
 )
 
 
 (define extend-env (
 	lambda (syms vals env) (
 		extended-environment syms (list->vector vals) env
+	)
+))
+
+
+(define extend-const-env (
+	lambda (syms vals env) (
+		extended-const-environment syms (list->vector vals) env
 	)
 ))
 
@@ -60,6 +71,16 @@
 					)
 				)
 			)
+			(extended-const-environment (symbols values old-env) (
+					let (
+						(index (index-of var symbols))
+					)
+					(if index
+						(a-const index values)
+						(apply-env old-env var)
+					)
+				)
+			)
 	)
 ))
 
@@ -69,6 +90,7 @@
 
 (define-datatype reference reference?
 	(a-ref (position integer?) (vector vector?))
+	(a-const (position integer?) (vector vector?))
 )
 
 
@@ -76,6 +98,7 @@
 	lambda(ref) (
 		cases reference ref
 			(a-ref (pos vec) (vector-ref vec pos))
+			(a-const (pos vec) (vector-ref vec pos))
 	)
 ))
 
@@ -84,6 +107,7 @@
 	lambda(ref val) (
 		cases reference ref
 			(a-ref (pos vec) (vector-set! vec pos val))
+			(a-const (pos vec) (eopl:error 'setref! "The value of a constant cannot be changed"))
 	)
 ))
 
@@ -210,6 +234,14 @@
 ;                                   STRING                                   ;
 ; -------------------------------------------------------------------------- ;
 
+(define eval-text-expression (
+	lambda (expression) (
+		cases a-lit-text expression
+			(a-lit-text_ (text) text)
+	)
+))
+
+
 (define apply-unary-string-primitive (
 	lambda (rator rand) (
 		cases unary_string_primitive rator
@@ -227,14 +259,6 @@
 	)
 ))
 
-
-(define eval-text-expression (
-	lambda (expression) (
-		cases a-lit-text expression
-			(a-lit-text_ (text) text)
-	)
-))
-
 ; -------------------------------------------------------------------------- ;
 
 (define eval-expression (
@@ -247,8 +271,67 @@
 			(a-boolean_expression (boolean-expression) (eval-boolean_expression boolean-expression env))
 
 			; -------------------------------------------------------------------------- ;
+			;                                 DEFINITIONS                                ;
+			; -------------------------------------------------------------------------- ;
+
+			(let-exp (identifiers expressions body) (
+				let (
+					(args (eval-expressions expressions env))
+				)
+				(eval-expression body (extend-env identifiers args env))
+			))
+
+			(const-exp (identifiers expressions body) (
+				let (
+					(args (eval-expressions expressions env))
+				)
+				(eval-expression body (extend-const-env identifiers args env))
+			))
+
+			(letrec-exp (procedures-names procedures-parameters procedures-bodies body) (
+				eval-expression body (extend-env-recursively
+					procedures-names
+					procedures-parameters
+					procedures-bodies
+					env
+				)
+			))
+
+			(proc-exp (identifiers body) (closure identifiers body env))
+
+			(app-exp (rator rands) (
+				let (
+					(proc (eval-expression rator env))
+					(args (eval-expressions rands env))
+				)
+				(if (procedure? proc)
+					(apply-procedure proc args)
+					(eopl:error 'app-exp "exp ~s is not a procedure" proc)
+				)
+			))
+
+			(set-exp (id rhs-exp) (
+				begin (
+					set-ref (apply-env env id) (eval-expression rhs-exp env)
+				)
+				1
+			))
+			; -------------------------------------------------------------------------- ;
 			;                             CONTROL STRUCTURES                             ;
 			; -------------------------------------------------------------------------- ;
+
+			(begin-exp (exp exps) (
+				letrec (
+					(loop (
+						lambda (accum exps) (
+							if (null? exps)
+								accum
+								(loop (eval-expression (car exps) env) (cdr exps))
+						)
+					))
+				)
+				(loop (eval-expression exp env) exps)
+			))
 
 			(if-exp (test-exp true-exp false-exp)
 				(if (eval-boolean_expression test-exp env)
@@ -256,6 +339,21 @@
 					(eval-expression false-exp env)
 				)
 			)
+
+			(while-exp (test-exp body) (
+				letrec (
+					(loop (
+						lambda (test-exp body) (
+							if (eval-boolean_expression test-exp env)
+								(loop (eval-expression body env) body)
+								1
+						)
+					))
+				)
+				(loop test-exp body)
+			))
+
+			; (for-exp (identifier ))
 
 			; -------------------------------------------------------------------------- ;
 			;                                 PRIMITIVES                                 ;
@@ -379,7 +477,14 @@
 
 (define test-exp "
 	int main() {
-		my-string-concat(\"Hello-\", \"world\")
+		var
+			#x = proc(#y) +i (#y, 1)
+			#y = 6
+		in
+			begin
+				set #y = 10;
+				(#x #y)
+			end
 	}
 ")
 
