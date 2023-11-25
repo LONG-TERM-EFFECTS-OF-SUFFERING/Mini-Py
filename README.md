@@ -84,6 +84,21 @@
                          := create-list (<expression> , <expression>)
                             create-list-exp (exp list-exp)
 
+                         := <unary_list_primitive> (<expression>)
+                            unary_list_primitive-app-exp (rator rand)
+
+                         := <list_primitive> <identifier> ({ <expression> }+ (,))
+                            list_primitive-app-exp (rator identifier rands)
+
+                         := create-tuple (<expression> , <expression>)
+                            create-tuple-exp (exp tuple-exp)
+
+                         := <unary_tuple_primitive> (<expression>)
+                            unary_tuple_primitive-app-exp (rator rand)
+
+                         := tuple_primitive <identifier> (<expression>)
+                            tuple_primitive-app-exp (rator identifier rand)
+
 <int-primitive>          := +i
                             int-add-prim ()
 
@@ -215,5 +230,4 @@
 
                           := tuple-tail
                              tuple-tail-prim ()
-
 ```

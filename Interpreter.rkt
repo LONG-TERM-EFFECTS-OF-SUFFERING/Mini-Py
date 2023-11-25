@@ -322,24 +322,52 @@
 ))
 
 
-; (define apply-list-primitive (
-; 	lambda (rator list-ref rand) (
-; 		let (
-; 			(list (deref list-ref))
-; 		)
-; 		(cases list_primitive rator
-; 			(append-list-prim () (
+(define get-list-elements (
+	lambda (list) (
+		cases my-list list
+			(empty-list () (vector '()))
+			(extended-list (values) values)
+	)
+))
 
-; 			))
-; 			(ref-list-prim () ())
-; 			(is-list-prim () ())
-; 			(set-list-prim () (
 
-; 			))
-; 			(else (eopl:error 'apply-unary-list-primitive "~s invalid unary_list_primitive expression" rator))
-; 		)
-; 	)
-; ))
+(define apply-list-primitive (
+	lambda (rator list-ref rands) (
+		let (
+			(list (deref list-ref))
+			(first-argument (car rands))
+		)
+		(cases list_primitive rator
+			(append-list-prim () (
+				let (
+					(new-list (
+						cases my-list list
+							(empty-list () (get-list-elements list))
+							(extended-list (values) (
+								extended-list (vector-append values (get-list-elements first-argument))
+							))
+					))
+				)
+				(set-ref list-ref new-list)
+			))
+			(ref-list-prim () (
+				cases my-list list
+					(empty-list () (eopl:error 'ref-list-prim "Cannot call apply ref list primitive on an empty list"))
+					(extended-list (values) (
+						vector-ref values first-argument
+					))
+			))
+			(set-list-prim () (
+				cases my-list list
+					(empty-list () (eopl:error 'set-list-prim "Cannot call apply set list primitive on an empty list"))
+					(extended-list (values) (
+						vector-set! values first-argument (cadr rands)
+					))
+			))
+			(else (eopl:error 'apply-list-primitive "~s invalid list_primitive expression" rator))
+		)
+	)
+))
 
 ; -------------------------------------------------------------------------- ;
 ;                                    TUPLE                                   ;
@@ -399,6 +427,21 @@
 				extended-tuple (vector-append (vector value) values)
 			))
 			(else (eopl:error 'eval-create-tuple-exp "~s invalid my-tuple expression" tuple))
+	)
+))
+
+
+(define apply-tuple-primitive (
+	lambda (rator tuple-ref rand) (
+		cases tuple_primitive rator
+			(ref-tuple-prim () (
+				cases my-tuple (deref tuple-ref)
+					(empty-tuple () (eopl:error 'ref-list-prim "Cannot call apply ref list primitive on an empty list"))
+					(extended-tuple (values) (
+						vector-ref values rand
+					))
+			))
+			(else (eopl:error 'apply-tuple-primitive "~s invalid tuple_primitive expression" rator))
 	)
 ))
 
@@ -642,17 +685,33 @@
 			;                                    LIST                                    ;
 			; -------------------------------------------------------------------------- ;
 
-			(unary_list_primitive-app-exp (rator rand)
-				(apply-unary-list-primitive rator (eval-expression rand env)))
+			(unary_list_primitive-app-exp (rator rand) (
+				apply-unary-list-primitive rator (eval-expression rand env)
+			))
 
+			(create-list-exp (exp list-exp) (
+				eval-create-list-exp (eval-expression exp env) (eval-expression list-exp env)
+			))
 
-			(create-list-exp (exp list-exp)
-				(eval-create-list-exp (eval-expression exp env) (eval-expression list-exp env))
-			)
+			(list_primitive-app-exp (rator identifier rand) (
+				apply-list-primitive rator (apply-env env identifier)  (eval-expressions rand env)
+			))
 
-			; (list_primitive-app-exp (rator indentifier rands) (
-			; 	apply-list-primitive rator (apply-env indentifier env) (eval-expressions rands env)
-			; ))
+			; -------------------------------------------------------------------------- ;
+			;                                    TUPLE                                   ;
+			; -------------------------------------------------------------------------- ;
+
+			(unary_tuple_primitive-app-exp (rator rand) (
+				apply-unary-tuple-primitive rator (eval-expression rand env)
+			))
+
+			(create-tuple-exp (exp tuple-exp) (
+				eval-create-tuple-exp (eval-expression exp env) (eval-expression tuple-exp env)
+			))
+
+			(tuple_primitive-app-exp (rator identifier rand) (
+				apply-tuple-primitive rator (apply-env env identifier) (eval-expression rand env)
+			))
 
 			; -------------------------------------------------------------------------- ;
 			;                                DICTIONARIES                                ;
@@ -742,20 +801,20 @@
 
 
 (define test-exp "
-		int main() {
-				var
-					#d = {key1 = 1; key2 = 2; key3 = 99}
+	int main() {
+		var
+			#d = list(4, 2, 6, 7)
+			#t = tuple(1, 2, 3, 4)
 		in
-					var
-						#proc = proc(#dictionary,#key,#value) set-dictionary(#dictionary,#key,#value)
-					in
-					begin
-						(#proc #d \"key1\" 2);
-						#d
-					end
+			begin
+				append #d (list(4, 6, 8));
+				set-list #d (0, 9);
+				#d;
+				create-tuple(5, #t)
+			end
 	}
 ")
 
 
-(scan&parse test-exp)
+;(scan&parse test-exp)
 (eval-program (scan&parse test-exp))
