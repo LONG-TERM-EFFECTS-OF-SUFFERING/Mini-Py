@@ -204,4 +204,16 @@
                           := list-tail
                              list-tail-prim ()
 
+<unary_tuple_primitive>   := empty-tuple?
+                             is-empty-tuple-prim ()
+
+                          := empty-tuple
+                             empty-tuple-prim ()
+
+                          := tuple-head
+                             tuple-head-prim ()
+
+                          := tuple-tail
+                             tuple-tail-prim ()
+
 ```

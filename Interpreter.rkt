@@ -7,8 +7,9 @@
 
 
 ; -------------------------------------------------------------------------- ;
-;                                ENVIRONMENTS                                ;
+;                                 ENVIRONMENT                                ;
 ; -------------------------------------------------------------------------- ;
+
 
 (define-datatype environment environment?
 	(empty-environment)
@@ -85,7 +86,7 @@
 ))
 
 ; -------------------------------------------------------------------------- ;
-;                                 REFERENCES                                 ;
+;                                  REFERENCE                                 ;
 ; -------------------------------------------------------------------------- ;
 
 (define-datatype reference reference?
@@ -112,7 +113,7 @@
 ))
 
 ; -------------------------------------------------------------------------- ;
-;                                 PROCEDURES                                 ;
+;                                  PROCEDURE                                 ;
 ; -------------------------------------------------------------------------- ;
 
 (define-datatype procedure procedure? (
@@ -158,7 +159,7 @@
 ))
 
 ; -------------------------------------------------------------------------- ;
-;                                  BOOLEANS                                  ;
+;                                   BOOLEAN                                  ;
 ; -------------------------------------------------------------------------- ;
 
 (define eval-atomic_boolean (
@@ -296,7 +297,7 @@
 			(is-list-prim () (my-list? rand))
 			(list-head-prim () (
 				cases my-list rand
-					(empty-list () (eopl:error 'head-list-prim "Cannot call apply head primitive on an empty list" rator))
+					(empty-list () (eopl:error 'list-head-prim "Cannot call apply head primitive on an empty list" rator))
 					(extended-list (values) (vector-ref values 0))
 			))
 			(list-tail-prim () (
@@ -308,24 +309,88 @@
 	)
 ))
 
+
 (define eval-create-list-exp (
 	lambda (value list) (
 		cases my-list list
 			(empty-list () (extended-list (vector value)))
 			(extended-list (values) (
-				(extended-list (vector-append value list))
+				extended-list (vector-append (vector value) values)
 			))
 			(else (eopl:error 'eval-create-list-exp "~s invalid my-list expression" list))
-		)
+	)
 ))
 
 ; -------------------------------------------------------------------------- ;
-;                                DICTIONARIES                                ;
+;                                    TUPLE                                   ;
+; -------------------------------------------------------------------------- ;
+
+(define-datatype my-tuple my-tuple?
+	(empty-tuple)
+	(extended-tuple (values vector?))
+)
+
+
+(define eval-tuple-exp (
+	lambda (tuple env) (
+		cases a-tuple-exp tuple
+			(a-tuple-exp_ (exps) (
+				let (
+					(values (eval-expressions exps env))
+				)
+				(if (null? values)
+					(empty-tuple)
+					(extended-tuple (list->vector values))))
+			)
+	)
+))
+
+
+(define apply-unary-tuple-primitive (
+	lambda (rator rand) (
+		cases unary_tuple_primitive rator
+			(is-empty-tuple-prim () (
+				cases my-tuple rand
+					(empty-tuple () #t)
+					(extended-tuple (values) #f)
+			))
+			(empty-tuple-prim () (empty-tuple))
+			(is-tuple-prim () (my-tuple? rand))
+			(tuple-head-prim () (
+				cases my-tuple rand
+					(empty-tuple () (eopl:error 'tuple-head-prim "Cannot call apply head primitive on an empty tuple" rator))
+					(extended-tuple (values) (vector-ref values 0))
+			))
+			(tuple-tail-prim () (
+				cases my-tuple rand
+					(empty-tuple () (eopl:error 'tuple-tail-prim "Cannot call apply tail primitive on an empty tuple" rator))
+					(extended-tuple (values) (extended-tuple (vector-copy values 1)))
+			))
+			(else (eopl:error 'apply-unary-list-primitive "~s invalid unary_list_primitive expression" rator))
+	)
+))
+
+
+(define eval-create-tuple-exp (
+	lambda (value tuple) (
+		cases my-tuple tuple
+			(empty-tuple () (extended-tuple (vector value)))
+			(extended-tuple (values) (
+				extended-tuple (vector-append (vector value) values)
+			))
+			(else (eopl:error 'eval-create-tuple-exp "~s invalid my-tuple expression" tuple))
+	)
+))
+
+; -------------------------------------------------------------------------- ;
+;                                 DICTIONARY                                 ;
 ; -------------------------------------------------------------------------- ;
 
 (define-datatype my-dictionary my-dictionary?
 	(extended-dictionary (keys vector?) (values vector?))
 )
+
+
 ; This function checks if a list has no repeated elements
 (define (no-repeats? keys)
 	(if (null? keys)
@@ -334,33 +399,36 @@
 					(no-repeats? (cdr keys))
 					#f)))
 
+
 ; This auxiliary function checks if an element is not repeated in a list
 (define (not-repeated? element list)
-	(if (null? list) 
+	(if (null? list)
 			#t
 			(if (equal? element (car list))
 					#f
 					(not-repeated? element (cdr list)))))
 
+
 (define eval-dictionary-exp
 	(lambda (expr env)
 		(cases a-dictionary-exp expr
 			(a-dictionary-exp_ (key1 value1 restKeys restValues)
-				(let 
+				(let
 						(
 							(evaluatedValues (eval-expressions restValues env))
 							(evaluatedValue1 (eval-expressions (list value1) env))
 						)
 					(if (no-repeats? (append (list key1) restKeys))
-							(extended-dictionary 
+							(extended-dictionary
 								(list->vector (append (list key1) restKeys))
 								(list->vector (append evaluatedValue1 evaluatedValues))
 							)
 							(eopl:error 'eval-dictionary-exp "The keys of a dictionary must be different")))))))
 
-(define apply-unary-record-primitive 
+
+(define apply-unary-record-primitive
 	(lambda (primitive exp)
-    (cases unary_record_primitive primitive
+	(cases unary_dictionary_primitive primitive
 			(is-dictionary-prim () (my-dictionary? exp))
 		)
 	)
@@ -376,6 +444,7 @@
 			(var-exp (identifier) (deref (apply-env env identifier)))
 			(lit-text (a-lit-text) (eval-text-expression a-lit-text))
 			(list-exp (a-list-exp) (eval-list_exp a-list-exp env))
+			(tuple-exp (a-tuple-exp) (eval-tuple-exp a-tuple-exp env))
 			(a-boolean_expression (boolean-expression) (eval-boolean_expression boolean-expression env))
 
 			; -------------------------------------------------------------------------- ;
@@ -533,11 +602,12 @@
 			; -------------------------------------------------------------------------- ;
 			;                                DICTIONARIES                                ;
 			; -------------------------------------------------------------------------- ;
+
 			(dictionary-exp (a-dictionary-exp)
 				(eval-dictionary-exp a-dictionary-exp env)
 			)
 
-			(unary_record_primitive-app-exp (primitive exp)
+			(unary_dictionary_primitive-app-exp (primitive exp)
 				(apply-unary-record-primitive primitive (eval-expression exp env))
 			)
 
@@ -609,12 +679,12 @@
 
 
 (define test-exp "
-    int main() {
-        var
-            #d = {key1 = 1; key2 = 2; key3 = 3}
-        in 
-            dictionary?(#d)
-    }
+	int main() {
+		var
+			#d = {key1 = 1; key2 = 2; key3 = 3}
+		in
+			dictionary?(#d)
+	}
 ")
 
 
