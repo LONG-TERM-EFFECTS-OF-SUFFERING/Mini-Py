@@ -320,6 +320,45 @@
 ))
 
 ; -------------------------------------------------------------------------- ;
+;                                DICTIONARIES                                ;
+; -------------------------------------------------------------------------- ;
+
+(define-datatype my-dictionary my-dictionary?
+	(extended-dictionary (keys vector?) (values vector?))
+)
+; This function checks if a list has no repeated elements
+(define (no-repeats? keys)
+	(if (null? keys)
+			#t
+			(if (not-repeated? (car keys) (cdr keys))
+					(no-repeats? (cdr keys))
+					#f)))
+
+; This auxiliary function checks if an element is not repeated in a list
+(define (not-repeated? element list)
+	(if (null? list) 
+			#t
+			(if (equal? element (car list))
+					#f
+					(not-repeated? element (cdr list)))))
+
+(define eval-dictionary-exp
+	(lambda (expr env)
+		(cases a-dictionary-exp expr
+			(a-dictionary-exp_ (key1 value1 restKeys restValues)
+				(let 
+						(
+							(evaluatedValues (eval-expressions restValues env))
+							(evaluatedValue1 (eval-expressions (list value1) env))
+						)
+					(if (no-repeats? (append (list key1) restKeys))
+							(extended-dictionary 
+								(list->vector (append (list key1) restKeys))
+								(list->vector (append evaluatedValue1 evaluatedValues))
+							)
+							(eopl:error 'eval-dictionary-exp "The keys of a dictionary must be different")))))))
+
+; -------------------------------------------------------------------------- ;
 
 (define eval-expression (
 	lambda (exp env) (
@@ -483,6 +522,13 @@
 
 			; (list_primitive-app-exp (rator rands) ())
 
+			; -------------------------------------------------------------------------- ;
+			;                                DICTIONARIES                                ;
+			; -------------------------------------------------------------------------- ;
+			(dictionary-exp (a-dictionary-exp)
+				(eval-dictionary-exp a-dictionary-exp env)
+			)
+
 			(else (eopl:error "~s invalid expression" exp))
 	)
 ))
@@ -551,21 +597,12 @@
 
 
 (define test-exp "
-	int main() {
-		/*
-		var
-			#x = proc(#y) +i (#y, 1)
-			#y = 6
-		in
-			begin
-				set #y = 10;
-				(#x #y)
-			end
-		*/
-		list-head(list(5, 4, 3))
-		// list(5, 4, 3)
-		// create-list(1, list(5, 4, 3))
-	}
+    int main() {
+        var
+            #d = {key1 = 1; key2 = 2; key3 = 3}
+        in 
+            #d
+    }
 ")
 
 

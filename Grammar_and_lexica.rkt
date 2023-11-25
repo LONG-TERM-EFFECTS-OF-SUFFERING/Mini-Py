@@ -197,14 +197,15 @@
 
 	; --------------------------------- RECORDS -------------------------------- ;
 
+	(expression ("create-dictionary" "(" a-dictionary-exp ")") create-dictionary-prim) 
+
 	(unary_record_primitive ("dictionary?") is-dictionary-prim)
 
-	(record_primitive ("create-dictionary" "(" a-dictionary-exp ")") create-dictionary-prim) ; Pending
 	(record_primitive ("ref-dictionary") ref-dictionary-prim)
 	(record_primitive ("set-dictionary") set-dictionary-prim)
 
-	(expression (unary_record_primitive "(" expression ")" ) unary_record_primitive-app-exp) ; Pending
-	(expression (record_primitive "(" (separated-list expression ",") ")" ) record_primitive-app-exp) ; Pending
+	(expression (unary_record_primitive "(" expression ")" ) unary_record_primitive-app-exp) 
+	(expression (record_primitive "(" identifier "," (separated-list expression ",") ")" ) record_primitive-app-exp) 
 ))
 
 ; -------------------------------------------------------------------------- ;
