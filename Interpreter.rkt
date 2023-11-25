@@ -96,7 +96,7 @@
 
 
 (define deref (
-	lambda(ref) (
+	lambda (ref) (
 		cases reference ref
 			(a-ref (pos vec) (vector-ref vec pos))
 			(a-const (pos vec) (vector-ref vec pos))
@@ -321,6 +321,26 @@
 	)
 ))
 
+
+; (define apply-list-primitive (
+; 	lambda (rator list-ref rand) (
+; 		let (
+; 			(list (deref list-ref))
+; 		)
+; 		(cases list_primitive rator
+; 			(append-list-prim () (
+
+; 			))
+; 			(ref-list-prim () ())
+; 			(is-list-prim () ())
+; 			(set-list-prim () (
+
+; 			))
+; 			(else (eopl:error 'apply-unary-list-primitive "~s invalid unary_list_primitive expression" rator))
+; 		)
+; 	)
+; ))
+
 ; -------------------------------------------------------------------------- ;
 ;                                    TUPLE                                   ;
 ; -------------------------------------------------------------------------- ;
@@ -434,7 +454,6 @@
 	)
 )
 
-
 (define apply-record-primitive
 	(lambda (recordPrimitive registerRef arguments)
 		(let
@@ -467,7 +486,6 @@
 (define find-index
 	(lambda (values id index)
 		(if (equal? (vector-ref values index) id) index (find-index values id (+ index 1)))))
-
 
 ; -------------------------------------------------------------------------- ;
 
@@ -632,7 +650,9 @@
 				(eval-create-list-exp (eval-expression exp env) (eval-expression list-exp env))
 			)
 
-			; (list_primitive-app-exp (rator rands) ())
+			; (list_primitive-app-exp (rator indentifier rands) (
+			; 	apply-list-primitive rator (apply-env indentifier env) (eval-expressions rands env)
+			; ))
 
 			; -------------------------------------------------------------------------- ;
 			;                                DICTIONARIES                                ;
@@ -647,12 +667,12 @@
 			)
 
 			(dictionary_primitive-app-exp (primitive recordId expressions)
-					(apply-record-primitive 
-						primitive 
-						(apply-env env recordId) 
+					(apply-record-primitive
+						primitive
+						(apply-env env recordId)
 						(eval-expressions expressions env)
 					)
-			)	
+			)
 
 			(else (eopl:error "~s invalid expression" exp))
 	)
@@ -717,7 +737,7 @@
 ; -------------------------------------------------------------------------- ;
 
 (define interpreter (
-	sllgen:make-rep-loop  "--> " (lambda (pgm) (eval-program  pgm)) (sllgen:make-stream-parser lexica grammar)
+	sllgen:make-rep-loop "--> " (lambda (pgm) (eval-program pgm)) (sllgen:make-stream-parser lexica grammar)
 ))
 
 
@@ -725,7 +745,7 @@
 		int main() {
 				var
 					#d = {key1 = 1; key2 = 2; key3 = 99}
-        in 
+		in
 					var
 						#proc = proc(#dictionary,#key,#value) set-dictionary(#dictionary,#key,#value)
 					in
@@ -733,7 +753,7 @@
 						(#proc #d \"key1\" 2);
 						#d
 					end
-    }
+	}
 ")
 
 

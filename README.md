@@ -142,22 +142,22 @@
                             hex-decr-prim ()
 
 <comparator_prim>        := <
-                       smaller-than-comparator-prim ()
+                            smaller-than-comparator-prim ()
 
                          := >
-                       greater-than-comparator-prim ()
+                            greater-than-comparator-prim ()
 
                          := <=
-                       less-equal-to-comparator-prim ()
+                            less-equal-to-comparator-prim ()
 
                          := >=
-                       greater-equal-to-comparator-prim ()
+                            greater-equal-to-comparator-prim ()
 
                          := ==
-                       equal-to-comparator-prim ()
+                            equal-to-comparator-prim ()
 
                          := !=
-                       not-equal-to-comparator-prim ()
+                            not-equal-to-comparator-prim ()
 
 <boolean>                := true
                             true-boolean-exp ()
