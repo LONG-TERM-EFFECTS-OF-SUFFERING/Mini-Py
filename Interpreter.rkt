@@ -434,6 +434,41 @@
 	)
 )
 
+
+(define apply-record-primitive
+	(lambda (recordPrimitive registerRef arguments)
+		(let
+			(
+				(registerValue (deref registerRef))
+				(firstArg (car arguments))
+			)
+			(cases dictionary_primitive recordPrimitive
+				(
+					ref-dictionary-prim ()
+						(cases my-dictionary registerValue
+							(extended-dictionary (ids vals)
+								(vector-ref vals (find-index ids firstArg 0))
+								)
+						)
+				)
+				(
+					set-dictionary-prim ()
+						(cases my-dictionary registerValue
+							(extended-dictionary (ids vals)
+								(vector-set! vals (find-index ids firstArg 0) (cadr arguments))
+							)
+						)
+				)
+			)
+		)
+	)
+)
+
+(define find-index
+	(lambda (values id index)
+		(if (equal? (vector-ref values index) id) index (find-index values id (+ index 1)))))
+
+
 ; -------------------------------------------------------------------------- ;
 
 (define eval-expression (
@@ -611,6 +646,14 @@
 				(apply-unary-record-primitive primitive (eval-expression exp env))
 			)
 
+			(dictionary_primitive-app-exp (primitive recordId expressions)
+					(apply-record-primitive 
+						primitive 
+						(apply-env env recordId) 
+						(eval-expressions expressions env)
+					)
+			)	
+
 			(else (eopl:error "~s invalid expression" exp))
 	)
 ))
@@ -679,12 +722,18 @@
 
 
 (define test-exp "
-	int main() {
-		var
-			#d = {key1 = 1; key2 = 2; key3 = 3}
-		in
-			dictionary?(#d)
-	}
+		int main() {
+				var
+					#d = {key1 = 1; key2 = 2; key3 = 99}
+        in 
+					var
+						#proc = proc(#dictionary,#key,#value) set-dictionary(#dictionary,#key,#value)
+					in
+					begin
+						(#proc #d \"key1\" 2);
+						#d
+					end
+    }
 ")
 
 
