@@ -358,6 +358,14 @@
 							)
 							(eopl:error 'eval-dictionary-exp "The keys of a dictionary must be different")))))))
 
+(define apply-unary-record-primitive 
+	(lambda (primitive exp)
+    (cases unary_record_primitive primitive
+			(is-dictionary-prim () (my-dictionary? exp))
+		)
+	)
+)
+
 ; -------------------------------------------------------------------------- ;
 
 (define eval-expression (
@@ -529,6 +537,10 @@
 				(eval-dictionary-exp a-dictionary-exp env)
 			)
 
+			(unary_record_primitive-app-exp (primitive exp)
+				(apply-unary-record-primitive primitive (eval-expression exp env))
+			)
+
 			(else (eopl:error "~s invalid expression" exp))
 	)
 ))
@@ -601,7 +613,7 @@
         var
             #d = {key1 = 1; key2 = 2; key3 = 3}
         in 
-            #d
+            dictionary?(#d)
     }
 ")
 
