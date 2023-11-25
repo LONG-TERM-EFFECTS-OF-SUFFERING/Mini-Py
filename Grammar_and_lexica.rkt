@@ -42,7 +42,7 @@
 	(a-lit-text ("\"" text "\"") a-lit-text_)
 	(expression (a-lit-text) lit-text)
 
-	(a-list-exp ("list" "(" (separated-list number ",") ")") a-list-exp_)
+	(a-list-exp ("list" "(" (separated-list expression ",") ")") a-list-exp_)
 	(expression (a-list-exp) list-exp)
 
 	(a-tuple-exp ("tuple" "(" (separated-list number ",") ")") a-tuple-exp_)
@@ -162,15 +162,18 @@
 	(binary_string_primitive ("my-string-concat") concat-string-prim)
 	(expression (binary_string_primitive "(" expression "," expression ")" ) app-binary-string-prim-exp)
 
-	; ---------------------------------- LIST ---------------------------------- ;
+	; -------------------------------------------------------------------------- ;
+	;                                    LIST                                    ;
+	; -------------------------------------------------------------------------- ;
 
 	(unary_list_primitive ("empty-list?") is-empty-list-prim)
 	(unary_list_primitive ("empty-list") empty-list-prim)
 	(unary_list_primitive ("my-list?") is-list-prim)
-	(unary_list_primitive ("head-list") head-list-prim)
-	(unary_list_primitive ("tail-list") tail-list-prim)
+	(unary_list_primitive ("list-head") list-head-prim)
+	(unary_list_primitive ("list-tail") list-tail-prim)
 
-	(list_primitive ("create-list" "(" (separated-list expression ",") ")" ) create-list-prim)
+	(expression ("create-list" "(" expression "," expression ")" ) create-list-exp)
+
 	(list_primitive ("append") append-list-prim)
 	(list_primitive ("ref-list") ref-list-prim)
 	(list_primitive ("set-list") set-list-prim)

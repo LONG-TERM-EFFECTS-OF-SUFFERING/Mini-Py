@@ -260,6 +260,66 @@
 ))
 
 ; -------------------------------------------------------------------------- ;
+;                                    LIST                                    ;
+; -------------------------------------------------------------------------- ;
+
+(define-datatype my-list my-list?
+	(empty-list)
+	(extended-list (values vector?))
+)
+
+
+(define eval-list_exp (
+	lambda (list env) (
+		cases a-list-exp list
+			(a-list-exp_ (exps) (
+				let (
+					(values (eval-expressions exps env))
+				)
+				(if (null? values)
+					(empty-list)
+					(extended-list (list->vector values))))
+			)
+	)
+))
+
+
+(define apply-unary-list-primitive (
+	lambda (rator rand) (
+		cases unary_list_primitive rator
+			(is-empty-list-prim () (
+				cases my-list rand
+					(empty-list () #t)
+					(extended-list (values) #f)
+			))
+			(empty-list-prim () (empty-list))
+			(is-list-prim () (my-list? rand))
+			(list-head-prim () (
+				cases my-list rand
+					(empty-list () (eopl:error 'head-list-prim "Cannot call apply head primitive on an empty list" rator))
+					(extended-list (values) (vector-ref values 0))
+			))
+			(list-tail-prim () (
+				cases my-list rand
+					(empty-list () (eopl:error 'tail-list-prim "Cannot call apply tail primitive on an empty list" rator))
+					(extended-list (values) (extended-list (vector-copy values 1)))
+			))
+			(else (eopl:error 'apply-unary-list-primitive "~s invalid unary_list_primitive expression" rator))
+	)
+))
+
+(define eval-create-list-exp (
+	lambda (value list) (
+		cases my-list list
+			(empty-list () (extended-list (vector value)))
+			(extended-list (values) (
+				(extended-list (vector-append value list))
+			))
+			(else (eopl:error 'eval-create-list-exp "~s invalid my-list expression" list))
+		)
+))
+
+; -------------------------------------------------------------------------- ;
 
 (define eval-expression (
 	lambda (exp env) (
@@ -268,6 +328,7 @@
 			(hex-exp (a-hex-exp) (hex-to-decimal a-hex-exp))
 			(var-exp (identifier) (deref (apply-env env identifier)))
 			(lit-text (a-lit-text) (eval-text-expression a-lit-text))
+			(list-exp (a-list-exp) (eval-list_exp a-list-exp env))
 			(a-boolean_expression (boolean-expression) (eval-boolean_expression boolean-expression env))
 
 			; -------------------------------------------------------------------------- ;
@@ -408,6 +469,20 @@
 				)
 			)
 
+			; -------------------------------------------------------------------------- ;
+			;                                    LIST                                    ;
+			; -------------------------------------------------------------------------- ;
+
+			(unary_list_primitive-app-exp (rator rand)
+				(apply-unary-list-primitive rator (eval-expression rand env)))
+
+
+			(create-list-exp (exp list-exp)
+				(eval-create-list-exp (eval-expression exp env) (eval-expression list-exp env))
+			)
+
+			; (list_primitive-app-exp (rator rands) ())
+
 			(else (eopl:error "~s invalid expression" exp))
 	)
 ))
@@ -477,6 +552,7 @@
 
 (define test-exp "
 	int main() {
+		/*
 		var
 			#x = proc(#y) +i (#y, 1)
 			#y = 6
@@ -485,6 +561,10 @@
 				set #y = 10;
 				(#x #y)
 			end
+		*/
+		list-head(list(5, 4, 3))
+		// list(5, 4, 3)
+		// create-list(1, list(5, 4, 3))
 	}
 ")
 

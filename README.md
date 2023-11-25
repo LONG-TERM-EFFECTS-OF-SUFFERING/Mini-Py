@@ -81,6 +81,9 @@
                          := <hex-primitive> ({ <expression> }* (,))
                             app-hex-prim-exp (rator rands)
 
+                         := create-list (<expression> , <expression>)
+                            create-list-exp (exp list-exp)
+
 <int-primitive>          := +i
                             int-add-prim ()
 
@@ -188,4 +191,17 @@
 
 <binary_string_primitive> := my-string-concat
                              concat-string-prim ()
+
+<unary_list_primitive>    := empty-list?
+                             is-empty-list-prim ()
+
+                          := empty-list
+                             empty-list-prim ()
+
+                          := list-head
+                             list-head-prim ()
+
+                          := list-tail
+                             list-tail-prim ()
+
 ```
