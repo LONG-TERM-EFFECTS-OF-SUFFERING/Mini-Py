@@ -3,14 +3,14 @@
 ## Grammar specification
 
 ```
-<program>                  := int main() { <expression> }
-                              a-program (exp)
+<program>                 := int main() { <expression> }
+                             a-program (exp)
 
-<a-hex-exp>                := x16 ({ <number> }+)
-                              a-hex-exp_ (numbers)
+<a-hex-exp>               := x16 ({ <number> }+)
+                             a-hex-exp_ (numbers)
 
-<a-lit-text>               := "text"
-                              a-lit-text_ (text)
+<a-lit-text>              := "text"
+                             a-lit-text_ (text)
 
 <a-list-exp>              := list( { <expression> }* (,))
                               a-list-exp_ (exps)
@@ -195,10 +195,10 @@
 <boolean-expression>      := <boolean>
                              atomic-boolean-exp (atomic-boolean)
 
-                          := <bool_binary_operator> ( <boolean-expression> , <boolean-expression> )
+                          := <bool_binary_operator> ( <expression> , <expression> )
                              app-binary-boolean-operator-exp (rator rand1 rand2)
 
-                          := <bool_unary_operator> ( <boolean-expression> )
+                          := <bool_unary_operator> ( <expression> )
                              app-unary-boolean-operator-exp (rator rand)
 
                           := <comparator_prim> ( <expression> , <expression> )

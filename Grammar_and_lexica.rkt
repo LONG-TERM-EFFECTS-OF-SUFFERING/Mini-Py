@@ -15,9 +15,9 @@
 	(identifier ("#" letter (arbno (or letter digit "?"))) symbol)
 	(number (digit (arbno digit)) number) ; Positive int numbers
 	(number ("-" digit (arbno digit)) number) ; Negative int numbers
-	(number (digit (arbno digit) "." digit (arbno digit)) number) ; Positive float numbers
-	(number ("-" digit (arbno digit) "." digit (arbno digit)) number) ; Negative float numbers
-	(text ((or letter "-") (arbno (or letter digit "-" "?" ":"))) string)
+	(number-f (digit (arbno digit) "." digit (arbno digit)) number) ; Positive float numbers
+	(number-f ("-" digit (arbno digit) "." digit (arbno digit)) number) ; Negative float numbers
+	(text (letter (arbno (or letter digit "-" "?" ":"))) string)
 ))
 
 ; -------------------------------------------------------------------------- ;
@@ -31,7 +31,8 @@
 	;                                    DATA                                    ;
 	; -------------------------------------------------------------------------- ;
 
-	(expression (number) lit-number)
+	(expression (number) lit-number-int)
+	(expression (number-f) lit-number-float)
 	; (expression ("x" number "(" (separated-list number ",") ")") bignum-exp)
 
 	(a-hex-exp ("x16" "(" (separated-list number ",") ")") a-hex-exp_)
@@ -60,9 +61,9 @@
 	(expression ("var" (arbno identifier "=" expression) "in" expression) let-exp)
 	(expression ("const" (arbno identifier "=" expression) "in" expression) const-exp)
 	(expression ("rec"
-		(arbno identifier "(" (separated-list identifier ",") ")" "=" expression) "in" expression)
-		letrec-exp)
-	(expression ("proc" "(" (separated-list identifier ",") ")" expression) proc-exp)
+		(arbno type-exp identifier "(" (separated-list type-exp identifier ",") ")" "=" expression) "in" expression)
+		letrec-exp) 
+	(expression ("proc" "(" (separated-list type-exp identifier ",") ")" expression) proc-exp) 
 
 
 	(expression ("(" expression (arbno expression) ")") app-exp)
@@ -98,8 +99,11 @@
 	; ------------------------------- EXPRESSION ------------------------------- ;
 
 	(boolean_expression (atomic_boolean) atomic-boolean-exp)
-	(boolean_expression (bool_binary_operator "(" boolean_expression "," boolean_expression ")" ) app-binary-boolean-operator-exp)
-	(boolean_expression (bool_unary_operator "(" boolean_expression ")" ) app-unary-boolean-operator-exp)
+	
+	(boolean_expression (bool_binary_operator "(" expression "," expression ")" ) app-binary-boolean-operator-exp)
+	
+	(boolean_expression (bool_unary_operator "(" expression ")" ) app-unary-boolean-operator-exp)
+	
 	(boolean_expression (comparator_prim "(" expression "," expression ")" ) app-comparator-boolean-exp)
 
 	(expression (boolean_expression) a-boolean_expression)
@@ -110,8 +114,8 @@
 	; -------------------------------------------------------------------------- ;
 
 	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
-	(expression ("if" boolean_expression "then" expression "else" expression) if-exp)
-	(expression ("while" "(" boolean_expression ")" "{" expression "}") while-exp)
+	(expression ("if" expression "then" expression "else" expression) if-exp)
+	(expression ("while" "(" expression ")" "{" expression "}") while-exp)
 	(expression ("for" "(" identifier "=" expression iterator expression ")" "{" expression "}") for-exp)
 
 	(expression ("print" "(" expression ")") print-exp)
@@ -216,6 +220,24 @@
 
 	(expression (unary_dictionary_primitive "(" expression ")" ) unary_dictionary_primitive-app-exp)
 	(expression (dictionary_primitive "(" identifier "," (separated-list expression ",") ")" ) dictionary_primitive-app-exp)
+
+
+	; -------------------------------------------------------------------------- ;
+	;                               TYPE EXPRESSION                              ;
+	; -------------------------------------------------------------------------- ;
+
+	(type-exp ("int") int-type-exp)
+	(type-exp ("float") float-type-exp)
+	(type-exp ("hex") hex-type-exp)
+	(type-exp ("string") string-type-exp)
+  (type-exp ("bool") bool-type-exp)
+  (type-exp ("tuplbool-tye") tuple-type-exp)
+  (type-exp ("dictionary") dictionary-type-exp)
+	
+	(type-exp
+		("(" (separated-list type-exp ",") "->" type-exp ")")
+		proc-type-exp
+	)
 ))
 
 ; -------------------------------------------------------------------------- ;
