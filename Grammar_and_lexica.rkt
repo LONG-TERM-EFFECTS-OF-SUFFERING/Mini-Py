@@ -1,5 +1,5 @@
 #lang racket
-(require (except-in eopl #%module-begin))
+(require (except-in eopl procedure? #%module-begin))
 (provide (all-from-out eopl))
 (provide #%module-begin)
 
@@ -62,9 +62,8 @@
 	(expression ("const" (arbno identifier "=" expression) "in" expression) const-exp)
 	(expression ("rec"
 		(arbno type-exp identifier "(" (separated-list type-exp identifier ",") ")" "=" expression) "in" expression)
-		letrec-exp) 
-	(expression ("proc" "(" (separated-list type-exp identifier ",") ")" expression) proc-exp) 
-
+		letrec-exp)
+	(expression ("proc" "(" (separated-list type-exp identifier ",") ")" expression) proc-exp)
 
 	(expression ("(" expression (arbno expression) ")") app-exp)
 	(expression ("set" identifier "=" expression) set-exp)
@@ -99,11 +98,11 @@
 	; ------------------------------- EXPRESSION ------------------------------- ;
 
 	(boolean_expression (atomic_boolean) atomic-boolean-exp)
-	
+
 	(boolean_expression (bool_binary_operator "(" expression "," expression ")" ) app-binary-boolean-operator-exp)
-	
+
 	(boolean_expression (bool_unary_operator "(" expression ")" ) app-unary-boolean-operator-exp)
-	
+
 	(boolean_expression (comparator_prim "(" expression "," expression ")" ) app-comparator-boolean-exp)
 
 	(expression (boolean_expression) a-boolean_expression)
@@ -186,9 +185,9 @@
 	(list_primitive ("append") append-list-prim)
 	(list_primitive ("ref-list") ref-list-prim)
 	(list_primitive ("set-list") set-list-prim)
+
 	(expression (unary_list_primitive "(" expression ")" ) unary_list_primitive-app-exp)
 	(expression (list_primitive identifier "(" (separated-list expression ",") ")" ) list_primitive-app-exp)
-	;PEND
 
 	; -------------------------------------------------------------------------- ;
 	;                                    TUPLE                                   ;
@@ -202,10 +201,9 @@
 
 	(expression  ("create-tuple" "(" expression "," expression ")" ) create-tuple-exp)
 
-	(tuple_primitive ("ref-tuple") ref-tuple-prim);PEND
+	(tuple_primitive ("ref-tuple") ref-tuple-prim)
 
 	(expression (unary_tuple_primitive "(" expression ")" ) unary_tuple_primitive-app-exp)
-
 	(expression (tuple_primitive identifier "(" expression ")" ) tuple_primitive-app-exp)
 
 	; -------------------------------------------------------------------------- ;
@@ -217,11 +215,10 @@
 	(unary_dictionary_primitive ("dictionary?") is-dictionary-prim)
 
 	(dictionary_primitive ("ref-dictionary") ref-dictionary-prim)
-	(dictionary_primitive ("set-dictionary") set-dictionary-prim); PEND
+	(dictionary_primitive ("set-dictionary") set-dictionary-prim)
 
 	(expression (unary_dictionary_primitive "(" expression ")" ) unary_dictionary_primitive-app-exp)
-
-	(expression (dictionary_primitive "(" identifier "," (separated-list expression ",") ")" ) dictionary_primitive-app-exp)
+	(expression (dictionary_primitive identifier "(" (separated-list expression ",") ")" ) dictionary_primitive-app-exp)
 
 
 	; -------------------------------------------------------------------------- ;
@@ -232,10 +229,10 @@
 	(type-exp ("float") float-type-exp)
 	(type-exp ("hex") hex-type-exp)
 	(type-exp ("string") string-type-exp)
-  (type-exp ("bool") bool-type-exp)
-  (type-exp ("tuplbool-tye") tuple-type-exp)
-  (type-exp ("dictionary") dictionary-type-exp)
-	
+	(type-exp ("bool") bool-type-exp)
+	(type-exp ("tuplbool-tye") tuple-type-exp)
+	(type-exp ("dictionary") dictionary-type-exp)
+
 	(type-exp
 		("(" (separated-list type-exp ",") "->" type-exp ")")
 		proc-type-exp

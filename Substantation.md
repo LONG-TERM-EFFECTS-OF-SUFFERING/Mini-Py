@@ -177,5 +177,28 @@
 9. Elabore la función "map" en su lenguaje de programación. La función "map" recibe una lista "L" y una función unaria "F". "map" debe retornar una lista donde se le ha aplicado la función "F" a cada elemento de la lista "L" (utilice las funciones auxiliares necesarias).
 
 	```
+	int main() {
+		var
+			#list = list(4, 3, 5, 6)
+			#f = proc(int #n) *i(#n, #n)
+		in
+			rec
+				int #map(int #list, int #f) =
+						if empty-list?(#list)
+						then list()
+						else create-list((#f list-head(#list)), (#map list-tail(#list) #f))
+			in
+				(#map #list #f)
+	}
+	```
+
+10. Mediante 2 ejemplos muestre que su interpretador Mini-Py tiene la capacidad de utilizar ciclos de repetición. Para esto, escriba dos programas independientes en su lenguaje de programación (uno con while y otro con for) que:
+
+	- contenga un ciclo de repetición que itere de 1 a 5 e imprima o retorne los estados de la variable del ciclo que se utiliza (i.e., 1,2,3,4,5). El programa podrá retornar ya sea una lista o una tupla o imprimir los valores en pantalla.
+
+	- contenga un ciclo de repetición que itere de 1 a 5 e invoque al procedimiento "esPar?" con la variable del ciclo que utiliza (i.e., false,true,false,true,false). El programa podrá retornar ya sea una lista o una tupla o imprimir los valores en pantalla.
+
+	```
+
 
 	```

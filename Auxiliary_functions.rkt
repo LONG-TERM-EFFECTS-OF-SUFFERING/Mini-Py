@@ -26,27 +26,38 @@
 ))
 
 
-;; Objective: Find the index of the first occurrence of an element in a list.
+;; Returns the index of the first occurrence of the specified element in the given list or vector.
+;;
 ;; Parameters:
-;;   - element: The element to search for.
-;;   - list: The list to search in.
+;; - element: The element to search for.
+;; - list-or-vector: The list or vector to search in.
+;;
 ;; Returns:
-;;   - The index of the first occurrence of the element in the list, or #f if the element is not found.
+;; - The index of the first occurrence of the element, or #f if the element is not found.
+;;
 ;; Examples:
-;;   (index-of 2 '(1 2 3 4 5)) ; returns 1
+;; (index-of 2 '(1 2 3 4 5)) ; Returns 1
+;; (index-of 'b #(a b c d e)) ; Returns 1
+;;
+;; Note:
+;; - If the input is a vector, it will be converted to a list before searching.
 (define index-of (
-	lambda (element list) (
+	lambda (element list-or-vector) (
 		letrec (
 			(get-index (
 				lambda (element list index) (
 					cond
 						[(empty? list) #f]
-						[(eqv? (car list) element) index]
+						[(equal? (car list) element) index]
 						[else (get-index element (cdr list) (+ index 1))]
 				)
 			))
 		)
-		(get-index element list 0)
+		(get-index element (
+			if (vector? list-or-vector)
+				(vector->list list-or-vector)
+				list-or-vector
+		) 0)
 	)
 ))
 
@@ -117,6 +128,19 @@
 ))
 
 
+;; Determines if a list of numbers is valid in a given base.
+;;
+;; Parameters:
+;; - numbers: A list of numbers.
+;; - base: The base in which the numbers are represented.
+;;
+;; Returns:
+;; - #t if all numbers in the list are valid in the given base.
+;; - #f otherwise.
+;;
+;; Example:
+;; (is-valid-number '(1 2 3) 10) ;=> #t
+;; (is-valid-number '(1 2 3) 2) ;=> #f
 (define is-valid-number (
 	lambda (numbers base) (
 		cond
@@ -128,20 +152,6 @@
 			[else (is-valid-number (cdr numbers) base)]
 	)
 ))
-
-(define list-find-position
-	(lambda (sym los)
-		(list-index (lambda (sym1) (eqv? sym1 sym)) los)))
-
-(define list-index
-	(lambda (pred ls)
-		(cond
-			((null? ls) #f)
-			((pred (car ls)) 0)
-			(else (let ((list-index-r (list-index pred (cdr ls))))
-							(if (number? list-index-r)
-									(+ list-index-r 1)
-									#f))))))
 
 
 (provide (all-defined-out))

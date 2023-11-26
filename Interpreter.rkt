@@ -5,267 +5,6 @@
 (require "Auxiliary_functions.rkt")
 (require "Grammar_and_lexica.rkt")
 
-;;; #lang racket
-;;; (require (except-in eopl #%module-begin))
-;;; (provide (all-from-out eopl))
-;;; (provide #%module-begin)
-;;; 
-;;; 
-;;; ; -------------------------------------------------------------------------- ;
-;;; ;                                   LEXICA                                   ;
-;;; ; -------------------------------------------------------------------------- ;
-;;; 
-;;; (define lexica '(
-;;; 	(white-sp (whitespace) skip)
-;;; 	(comment ("//" (arbno (not #\newline))) skip) ; Comments
-;;; 	(comment ("/*" (arbno (not #\*/)) "*/") skip) ; Block comments
-;;; 	(identifier ("#" letter (arbno (or letter digit "?"))) symbol)
-;;; 	(number (digit (arbno digit)) number) ; Positive int numbers
-;;; 	(number ("-" digit (arbno digit)) number) ; Negative int numbers
-;;; 	(number-f (digit (arbno digit) "." digit (arbno digit)) number) ; Positive float numbers
-;;; 	(number-f ("-" digit (arbno digit) "." digit (arbno digit)) number) ; Negative float numbers
-;;; 	(text ((or letter "-") (arbno (or letter digit "-" "?" ":"))) string)
-;;; ))
-;;; 
-;;; ; -------------------------------------------------------------------------- ;
-;;; ;                                   GRAMMAR                                  ;
-;;; ; -------------------------------------------------------------------------- ;
-;;; 
-;;; (define grammar '(
-;;; 	(program ("int" "main" "(" ")" "{" expression "}") a-program)
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                                    DATA                                    ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	(expression (number) lit-number-int)
-;;; 	(expression (number-f) lit-number-float)
-;;; 	; (expression ("x" number "(" (separated-list number ",") ")") bignum-exp)
-;;; 
-;;; 	(a-hex-exp ("x16" "(" (separated-list number ",") ")") a-hex-exp_)
-;;; 	(expression (a-hex-exp) hex-exp)
-;;; 
-;;; 	(expression (identifier) var-exp)
-;;; 
-;;; 	(a-lit-text ("\"" text "\"") a-lit-text_)
-;;; 	(expression (a-lit-text) lit-text)
-;;; 
-;;; 	(a-list-exp ("list" "(" (separated-list expression ",") ")") a-list-exp_)
-;;; 	(expression (a-list-exp) list-exp)
-;;; 
-;;; 	(a-tuple-exp ("tuple" "(" (separated-list expression ",") ")") a-tuple-exp_)
-;;; 	(expression (a-tuple-exp) tuple-exp)
-;;; 
-;;; 	(a-dictionary-exp ("{" text "=" expression (arbno ";" text "=" expression) "}") a-dictionary-exp_)
-;;; 	(expression (a-dictionary-exp) dictionary-exp)
-;;; 
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                                 DEFINITION                                 ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 
-;;; 	(expression ("var" (arbno identifier "=" expression) "in" expression) let-exp)
-;;; 	(expression ("const" (arbno identifier "=" expression) "in" expression) const-exp)
-;;; 	(expression ("rec"
-;;; 		(arbno type-exp identifier "(" (separated-list type-exp identifier ",") ")" "=" expression) "in" expression)
-;;; 		letrec-exp) 
-;;; 	(expression ("proc" "(" (separated-list type-exp identifier ",") ")" expression) proc-exp) 
-;;; 
-;;; 
-;;; 	(expression ("(" expression (arbno expression) ")") app-exp)
-;;; 	(expression ("set" identifier "=" expression) set-exp)
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                                   BOOLEAN                                  ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	; ------------------------------- COMPARATOR ------------------------------- ;
-;;; 
-;;; 	(comparator_prim ("<") smaller-than-comparator-prim)
-;;; 	(comparator_prim (">") greater-than-comparator-prim)
-;;; 	(comparator_prim ("<=") less-equal-to-comparator-prim)
-;;; 	(comparator_prim (">=") greater-equal-to-comparator-prim)
-;;; 	(comparator_prim ("==") equal-to-comparator-prim)
-;;; 	(comparator_prim ("!=") not-equal-to-comparator-prim)
-;;; 
-;;; 	; --------------------------------- ATOMIC --------------------------------- ;
-;;; 
-;;; 	(atomic_boolean ("true") true-boolean)
-;;; 	(atomic_boolean ("false") false-boolean)
-;;; 
-;;; 	; ----------------------------- BINARY OPERATOR ---------------------------- ;
-;;; 
-;;; 	(bool_binary_operator ("and") and-bool-binary-operator)
-;;; 	(bool_binary_operator ("or") or-bool-binary-operator)
-;;; 
-;;; 	; ----------------------------- UNARY OPERATOR ----------------------------- ;
-;;; 
-;;; 	(bool_unary_operator ("not") negation-bool-unary-operator)
-;;; 
-;;; 	; ------------------------------- EXPRESSION ------------------------------- ;
-;;; 
-;;; 	(boolean_expression (atomic_boolean) atomic-boolean-exp)
-;;; 	(boolean_expression (bool_binary_operator "(" boolean_expression "," boolean_expression ")" ) app-binary-boolean-operator-exp)
-;;; 	(boolean_expression (bool_unary_operator "(" boolean_expression ")" ) app-unary-boolean-operator-exp)
-;;; 	(boolean_expression (comparator_prim "(" expression "," expression ")" ) app-comparator-boolean-exp)
-;;; 
-;;; 	(expression (boolean_expression) a-boolean_expression)
-;;; 
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                              CONTROL STRUCTURE                             ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
-;;; 	(expression ("if" expression "then" expression "else" expression) if-exp)
-;;; 	(expression ("while" "(" boolean_expression ")" "{" expression "}") while-exp)
-;;; 	(expression ("for" "(" identifier "=" expression iterator expression ")" "{" expression "}") for-exp)
-;;; 
-;;; 	(expression ("print" "(" expression ")") print-exp)
-;;; 
-;;; 	; -------------------------------- ITERATOR -------------------------------- ;
-;;; 
-;;; 	(iterator ("to") to-iterator)
-;;; 	(iterator ("downto") downto-iterator)
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                                  PRIMITIVE                                 ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	; ----------------------------------- INT ---------------------------------- ;
-;;; 
-;;; 	(int-primitive ("+i") int-add-prim)
-;;; 	(int-primitive ("-i") int-substract-prim)
-;;; 	(int-primitive ("*i") int-mult-prim)
-;;; 	(int-primitive ("/i") int-div-prim)
-;;; 	(int-primitive ("%i") int-module-prim)
-;;; 	(int-primitive ("add1i") int-incr-prim)
-;;; 	(int-primitive ("sub1i") int-decr-prim)
-;;; 
-;;; 	(expression (int-primitive "(" (separated-list expression ",") ")" ) app-int-prim-exp)
-;;; 
-;;; 	; ---------------------------------- FLOAT --------------------------------- ;
-;;; 
-;;; 	(float-primitive ("+f") float-add-prim)
-;;; 	(float-primitive ("-f") float-substract-prim)
-;;; 	(float-primitive ("*f") float-mult-prim)
-;;; 	(float-primitive ("/f") float-div-prim)
-;;; 	(float-primitive ("%f") float-module-prim)
-;;; 	(float-primitive ("add1f") float-incr-prim)
-;;; 	(float-primitive ("sub1f") float-decr-prim)
-;;; 
-;;; 	(expression (float-primitive "(" (separated-list expression ",") ")" ) app-float-prim-exp)
-;;; 
-;;; 	; ------------------------------- HEXADECIMAL ------------------------------ ;
-;;; 
-;;; 	(hex-primitive ("+h") hex-add-prim)
-;;; 	(hex-primitive ("-h") hex-substract-prim)
-;;; 	(hex-primitive ("*h") hex-mult-prim)
-;;; 	(hex-primitive ("add1h") hex-incr-prim)
-;;; 	(hex-primitive ("sub1h") hex-decr-prim)
-;;; 
-;;; 	(expression (hex-primitive "(" (separated-list expression ",") ")" ) app-hex-prim-exp)
-;;; 
-;;; 	; --------------------------------- STRING --------------------------------- ;
-;;; 
-;;; 	(unary_string_primitive ("my-string-length") length-string-prim)
-;;; 	(expression (unary_string_primitive  "(" expression ")" ) app-unary-string-prim-exp)
-;;; 
-;;; 	(binary_string_primitive ("my-string-concat") concat-string-prim)
-;;; 	(expression (binary_string_primitive "(" expression "," expression ")" ) app-binary-string-prim-exp)
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                                    LIST                                    ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	(unary_list_primitive ("empty-list?") is-empty-list-prim)
-;;; 	(unary_list_primitive ("empty-list") empty-list-prim)
-;;; 	(unary_list_primitive ("my-list?") is-list-prim)
-;;; 	(unary_list_primitive ("list-head") list-head-prim)
-;;; 	(unary_list_primitive ("list-tail") list-tail-prim)
-;;; 
-;;; 	(expression ("create-list" "(" expression "," expression ")" ) create-list-exp)
-;;; 
-;;; 	(list_primitive ("append") append-list-prim)
-;;; 	(list_primitive ("ref-list") ref-list-prim)
-;;; 	(list_primitive ("set-list") set-list-prim)
-;;; 
-;;; 	(expression (unary_list_primitive "(" expression ")" ) unary_list_primitive-app-exp)
-;;; 	(expression (list_primitive identifier "(" (separated-list expression ",") ")" ) list_primitive-app-exp)
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                                    TUPLE                                   ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	(unary_tuple_primitive ("empty-tuple?") is-empty-tuple-prim)
-;;; 	(unary_tuple_primitive ("empty-tuple") empty-tuple-prim)
-;;; 	(unary_tuple_primitive ("tuple?") is-tuple-prim)
-;;; 	(unary_tuple_primitive ("head-tuple") tuple-head-prim)
-;;; 	(unary_tuple_primitive ("tail-tuple") tuple-tail-prim)
-;;; 
-;;; 	(expression  ("create-tuple" "(" expression "," expression ")" ) create-tuple-exp)
-;;; 
-;;; 	(tuple_primitive ("ref-tuple") ref-tuple-prim)
-;;; 
-;;; 	(expression (unary_tuple_primitive "(" expression ")" ) unary_tuple_primitive-app-exp)
-;;; 	(expression (tuple_primitive identifier "(" expression ")" ) tuple_primitive-app-exp)
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                                 DICTIONARY                                 ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	(expression ("create-dictionary" "(" a-dictionary-exp ")") create-dictionary-prim)
-;;; 
-;;; 	(unary_dictionary_primitive ("dictionary?") is-dictionary-prim)
-;;; 
-;;; 	(dictionary_primitive ("ref-dictionary") ref-dictionary-prim)
-;;; 	(dictionary_primitive ("set-dictionary") set-dictionary-prim)
-;;; 
-;;; 	(expression (unary_dictionary_primitive "(" expression ")" ) unary_dictionary_primitive-app-exp)
-;;; 	(expression (dictionary_primitive "(" identifier "," (separated-list expression ",") ")" ) dictionary_primitive-app-exp)
-;;; 
-;;; 
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 	;                               TYPE EXPRESSION                              ;
-;;; 	; -------------------------------------------------------------------------- ;
-;;; 
-;;; 	(type-exp ("int") int-type-exp)
-;;; 	(type-exp ("float") float-type-exp)
-;;; 	(type-exp ("hex") hex-type-exp)
-;;; 	(type-exp ("string") string-type-exp)
-;;;   (type-exp ("bool") bool-type-exp)
-;;; 	
-;;; 	(type-exp
-;;; 		("(" (separated-list type-exp ",") "->" type-exp ")")
-;;; 		proc-type-exp
-;;; 	)
-;;; ))
-;;; 
-;;; ; -------------------------------------------------------------------------- ;
-;;; ;                                   SLLGEN                                   ;
-;;; ; -------------------------------------------------------------------------- ;
-;;; 
-;;; (sllgen:make-define-datatypes lexica grammar)
-;;; 
-;;; 
-;;; (define show-the-datatypes (
-;;; 	sllgen:list-define-datatypes lexica grammar
-;;; ))
-;;; 
-;;; 
-;;; (define scan&parse (
-;;; 	sllgen:make-string-parser lexica grammar
-;;; ))
-;;; 
-;;; 
-;;; (define just-scan (
-;;; 	sllgen:make-string-scanner lexica grammar
-;;; ))
-;;; 
-;;; 
-;;; (provide (all-defined-out))
-
 
 ; -------------------------------------------------------------------------- ;
 ;                                 ENVIRONMENT                                ;
@@ -361,13 +100,13 @@
 (define empty-tenv empty-tenv-record)
 (define extend-tenv extended-tenv-record)
 
-(define apply-tenv 
+(define apply-tenv
 	(lambda (tenv sym)
 		(cases type-environment tenv
 			(empty-tenv-record ()
 				(eopl:error 'apply-tenv "Unbound variable ~s" sym))
 			(extended-tenv-record (syms vals env)
-				(let ((pos (list-find-position sym syms)))
+				(let ((pos (index-of sym syms)))
 					(if (number? pos)
 						(list-ref vals pos)
 						(apply-tenv env sym)))))))
@@ -400,7 +139,7 @@
 	(atomic-type 'int))
 
 (define float-type
-	(atomic-type 'float))	
+	(atomic-type 'float))
 
 (define hex-type
 	(atomic-type 'hex))
@@ -671,7 +410,11 @@
 			(list-tail-prim () (
 				cases my-list rand
 					(empty-list () (eopl:error 'tail-list-prim "Cannot call apply tail primitive on an empty list" rator))
-					(extended-list (values) (extended-list (vector-copy values 1)))
+					(extended-list (values) (
+						if (eqv? (vector-length values) 1)
+							(empty-list)
+							(extended-list (vector-copy values 1))
+					))
 			))
 			(else (eopl:error 'apply-unary-list-primitive "~s invalid unary_list_primitive expression" rator))
 	)
@@ -857,7 +600,7 @@
 							(eopl:error 'eval-dictionary-exp "The keys of a dictionary must be different")))))))
 
 
-(define apply-unary-record-primitive
+(define apply-unary-dictionary-primitive
 	(lambda (primitive exp)
 	(cases unary_dictionary_primitive primitive
 			(is-dictionary-prim () (my-dictionary? exp))
@@ -865,7 +608,7 @@
 	)
 )
 
-(define apply-record-primitive
+(define apply-dictionary-primitive
 	(lambda (recordPrimitive registerRef arguments)
 		(let
 			(
@@ -877,7 +620,7 @@
 					ref-dictionary-prim ()
 						(cases my-dictionary registerValue
 							(extended-dictionary (ids vals)
-								(vector-ref vals (find-index ids firstArg 0))
+								(vector-ref vals (index-of firstArg ids))
 								)
 						)
 				)
@@ -885,7 +628,7 @@
 					set-dictionary-prim ()
 						(cases my-dictionary registerValue
 							(extended-dictionary (ids vals)
-								(vector-set! vals (find-index ids firstArg 0) (cadr arguments))
+								(vector-set! vals (index-of firstArg ids) (cadr arguments))
 							)
 						)
 				)
@@ -893,10 +636,6 @@
 		)
 	)
 )
-
-(define find-index
-	(lambda (values id index)
-		(if (equal? (vector-ref values index) id) index (find-index values id (+ index 1)))))
 
 ; -------------------------------------------------------------------------- ;
 
@@ -938,7 +677,7 @@
 					env
 				)
 			))
-			
+
 			(proc-exp (args-texps identifiers body) (closure identifiers body env))
 
 			(app-exp (rator rands) (
@@ -1093,7 +832,7 @@
 			))
 
 			(list_primitive-app-exp (rator identifier rand) (
-				apply-list-primitive rator (apply-env env identifier)  (eval-expressions rand env)
+				apply-list-primitive rator (apply-env env identifier) (eval-expressions rand env)
 			))
 
 			; -------------------------------------------------------------------------- ;
@@ -1121,11 +860,11 @@
 			)
 
 			(unary_dictionary_primitive-app-exp (primitive exp)
-				(apply-unary-record-primitive primitive (eval-expression exp env))
+				(apply-unary-dictionary-primitive primitive (eval-expression exp env))
 			)
 
 			(dictionary_primitive-app-exp (primitive recordId expressions)
-					(apply-record-primitive
+					(apply-dictionary-primitive
 						primitive
 						(apply-env env recordId)
 						(eval-expressions expressions env)
@@ -1199,23 +938,24 @@
 ; -------------------------------------------------------------------------- ;
 ;                       AUXILIARY FUNCTION TYPE CHECKER                      ;
 ; -------------------------------------------------------------------------- ;
+
 (define type-of-boolean_expression
 	(lambda (expression tenv) (
 		cases boolean_expression expression
 			(atomic-boolean-exp (atomic-boolean) (type-of-atomic-boolean atomic-boolean))
-		
-			(app-binary-boolean-operator-exp (rator rand1 rand2) 
+
+			(app-binary-boolean-operator-exp (rator rand1 rand2)
 				(type-of-binary-boolean-operator rator rand1 rand2 tenv)
 			)
-		
-			(app-unary-boolean-operator-exp (rator rand) 
+
+			(app-unary-boolean-operator-exp (rator rand)
 				(type-of-uninary-boolean-operator rator rand tenv)
 			)
-		
-			(app-comparator-boolean-exp (rator rand1 rand2) 
+
+			(app-comparator-boolean-exp (rator rand1 rand2)
 				(type-of-comparator-boolean rator rand1 rand2 tenv)
 			)
-		
+
 			(else (eopl:error "~s invalid boolean_expression expression" expression))
 	))
 )
@@ -1232,7 +972,7 @@
 	))
 )
 
-(define type-of-comparator-boolean 
+(define type-of-comparator-boolean
 	(lambda (rator rand1 rand2 tenv) (
 		let (
 			(type-of-rand1 (type-of-expression rand1 tenv))
@@ -1533,7 +1273,7 @@
 						(result-types (expand-type-expressions result-texps)))
 					(let ((the-proc-types
 						(map proc-type arg-typess result-types)))
-							(let 
+							(let
 								((tenv-for-body (extend-tenv proc-names the-proc-types tenv)))
 								(for-each
 						(lambda (ids arg-types body result-type)
@@ -1646,7 +1386,7 @@
 (define type-of-unary-list-primitive
   (lambda (rator evaluated-rand)
       (cases unary_list_primitive rator
-			;;si evaluated-rand es (list-type (atomic-type 'int)) para obtener la palabra 
+			;;si evaluated-rand es (list-type (atomic-type 'int)) para obtener la palabra
 				(is-empty-list-prim ()
 					(if (list-type? evaluated-rand)
 						bool-type
@@ -1666,7 +1406,7 @@
 					)
 				)
 				(list-tail-prim ()
-					(if (list-type? evaluated-rand)	
+					(if (list-type? evaluated-rand)
 						(get-element-type evaluated-rand)
 						(error "Type mismatch: evaluated-rand must be a list-type")
 					)
@@ -1685,7 +1425,7 @@
 			)
 		)
 
-(define type-of-unary-tuple-primitive 
+(define type-of-unary-tuple-primitive
 	(lambda (rator evaluated-rand rand tenv)
 		(cases unary_tuple_primitive rator
 		(is-empty-tuple-prim ()
@@ -1703,7 +1443,7 @@
 	)
 )
 
-(define type-of-unary-record-primitive 
+(define type-of-unary-record-primitive
 	(lambda (rator evaluated-rand)
 		(cases unary_dictionary_primitive rator
 		(is-dictionary-prim ()
@@ -1748,7 +1488,7 @@
 										(true-type (type-of-expression true-boolean tenv)))
 								(check-equal-type! test-type bool-type test-exp)
 								(check-equal-type! true-type false-type exp)
-								true-type)) 
+								true-type))
 			(proc-exp (texps ids body)
 								(type-of-proc-exp texps ids body tenv))
 			(app-int-prim-exp (prim rands)
@@ -1790,7 +1530,7 @@
 			(set-exp (id new-value)
 			(type-of-set-exp id new-value tenv))
 			(while-exp (test-exp body)
-				(type-of-while-exp test-exp body tenv))	
+				(type-of-while-exp test-exp body tenv))
 			(for-exp (identifier initial-value iterator iterator-lim body)
 				(type-of-for-exp identifier initial-value iterator iterator-lim body tenv))
 			(app-unary-string-prim-exp (prim rand)
@@ -1821,7 +1561,7 @@
 			(unary_dictionary_primitive-app-exp (primitive exp)
 				(type-of-unary-record-primitive primitive (type-of-expression exp tenv)))
 
-		
+
 
 			(else (eopl:error "~s invalid expression" exp))
 )))
@@ -1842,26 +1582,4 @@
 		(if (type? (type-of-program program)) (eval-program program) 'error)))
 
 
-(define test-exp "
-	int main() {
-				for ( #d = 1 to 5){2}
-	}
-")
-
-
-; (scan&parse test-exp)
-(eval-program (scan&parse test-exp))
-
-(type-of-program
-	(scan&parse "
-		int main() {
-					dictionary?(create-dictionary({a=3;n=3}))
-		}
-	")	
-)
-
-	;;; (expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
-
-	;;; (expression ("proc" "(" (separated-list type-exp identifier ",") ")" expression) proc-exp) 
-	;;; (expression (int-primitive "(" (separated-list expression ",") ")" ) app-int-prim-exp)
-	;;; (a-list-exp ("list" "(" (separated-list expression ",") ")") a-list-exp_)
+(provide (all-defined-out))
