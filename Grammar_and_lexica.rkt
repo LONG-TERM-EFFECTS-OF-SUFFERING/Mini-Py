@@ -112,7 +112,9 @@
 	(expression ("begin" expression (arbno ";" expression ) "end") begin-exp)
 	(expression ("if" boolean_expression "then" expression "else" expression) if-exp)
 	(expression ("while" "(" boolean_expression ")" "{" expression "}") while-exp)
-	(expression ("for" identifier "=" expression iterator expression "{" expression "}") for-exp)
+	(expression ("for" "(" identifier "=" expression iterator expression ")" "{" expression "}") for-exp)
+
+	(expression ("print" "(" expression ")") print-exp)
 
 	; -------------------------------- ITERATOR -------------------------------- ;
 

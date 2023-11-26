@@ -117,4 +117,17 @@
 ))
 
 
+(define is-valid-number (
+	lambda (numbers base) (
+		cond
+			[(empty? numbers) #t]
+			[(or
+				(>= (car numbers) base)
+				(< (car numbers) 0)
+			) #f]
+			[else (is-valid-number (cdr numbers) base)]
+	)
+))
+
+
 (provide (all-defined-out))

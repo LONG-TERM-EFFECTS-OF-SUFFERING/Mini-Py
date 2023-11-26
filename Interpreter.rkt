@@ -261,6 +261,19 @@
 ))
 
 ; -------------------------------------------------------------------------- ;
+;                             CONTROL STRUCTURES                             ;
+; -------------------------------------------------------------------------- ;
+
+(define apply-iterator (
+	lambda (expression) (
+		cases iterator expression
+			(to-iterator () 1)
+			(downto-iterator () -1)
+			(else (eopl:error "~s invalid iterator expression" expression))
+	)
+))
+
+; -------------------------------------------------------------------------- ;
 ;                                    LIST                                    ;
 ; -------------------------------------------------------------------------- ;
 
@@ -589,6 +602,7 @@
 				)
 				1
 			))
+
 			; -------------------------------------------------------------------------- ;
 			;                             CONTROL STRUCTURES                             ;
 			; -------------------------------------------------------------------------- ;
@@ -616,17 +630,46 @@
 			(while-exp (test-exp body) (
 				letrec (
 					(loop (
-						lambda (test-exp body) (
+						lambda (test-exp body last-evaluation) (
 							if (eval-boolean_expression test-exp env)
-								(loop (eval-expression body env) body)
+								(loop test-exp body (eval-expression body env))
 								1
 						)
 					))
 				)
-				(loop test-exp body)
+				(loop test-exp body empty)
 			))
 
-			; (for-exp (identifier ))
+			(for-exp (identifier initial-value iterator iterator-lim body) (
+				let (
+					(initial-value (eval-expression initial-value env))
+					(iterator-value (apply-iterator iterator))
+					(iterator-lim-value (eval-expression iterator-lim env))
+				)
+				(
+					letrec (
+						(loop (
+							lambda (iteration last-evaluation) (
+								let (
+									(new-environment (extend-env (list identifier) (list iteration) env))
+								)
+								(if (eqv? iteration iterator-lim-value)
+									(eval-expression body new-environment)
+									(loop (+ iteration iterator-value) (eval-expression body new-environment))
+								)
+							)
+						))
+
+					)
+					(loop initial-value empty)
+				)
+			))
+
+			(print-exp (exp) (
+				begin
+					(display (eval-expression exp env))
+					(display "\n")
+			))
 
 			; -------------------------------------------------------------------------- ;
 			;                                 PRIMITIVES                                 ;
@@ -776,7 +819,11 @@
 (define hex-to-decimal (
 	lambda (hex) (
 		cases a-hex-exp hex
-			(a-hex-exp_ (numbers) (number-to-decimal numbers 16))
+			(a-hex-exp_ (numbers) (
+				if (is-valid-number numbers 16)
+					(number-to-decimal numbers 16)
+					(eopl:error "~s is not a hexadecimal number" hex)
+			))
 			(else (eopl:error "~s is not a hexadecimal number" hex))
 	)
 ))
@@ -803,18 +850,30 @@
 (define test-exp "
 	int main() {
 		var
-			#d = list(4, 2, 6, 7)
-			#t = tuple(1, 2, 3, 4)
+			#x = 10
+			#y = 1
 		in
 			begin
-				append #d (list(4, 6, 8));
-				set-list #d (0, 9);
-				#d;
-				create-tuple(5, #t)
+				/*
+				while (> (#x, 0)) {
+					begin
+						set #y = add1i(#y);
+						set #x = sub1i(#x);
+						print(#x)
+					end
+				};
+				*/
+				for (#i = 1 to 5) {
+					begin
+						set #y = *i (#y, #i);
+						print(#i)
+					end
+				};
+				#y
 			end
 	}
 ")
 
 
-;(scan&parse test-exp)
+; (scan&parse test-exp)
 (eval-program (scan&parse test-exp))
