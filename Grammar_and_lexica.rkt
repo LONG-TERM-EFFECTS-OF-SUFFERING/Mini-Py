@@ -186,9 +186,9 @@
 	(list_primitive ("append") append-list-prim)
 	(list_primitive ("ref-list") ref-list-prim)
 	(list_primitive ("set-list") set-list-prim)
-
 	(expression (unary_list_primitive "(" expression ")" ) unary_list_primitive-app-exp)
 	(expression (list_primitive identifier "(" (separated-list expression ",") ")" ) list_primitive-app-exp)
+	;PEND
 
 	; -------------------------------------------------------------------------- ;
 	;                                    TUPLE                                   ;
@@ -202,9 +202,10 @@
 
 	(expression  ("create-tuple" "(" expression "," expression ")" ) create-tuple-exp)
 
-	(tuple_primitive ("ref-tuple") ref-tuple-prim)
+	(tuple_primitive ("ref-tuple") ref-tuple-prim);PEND
 
 	(expression (unary_tuple_primitive "(" expression ")" ) unary_tuple_primitive-app-exp)
+
 	(expression (tuple_primitive identifier "(" expression ")" ) tuple_primitive-app-exp)
 
 	; -------------------------------------------------------------------------- ;
@@ -216,9 +217,10 @@
 	(unary_dictionary_primitive ("dictionary?") is-dictionary-prim)
 
 	(dictionary_primitive ("ref-dictionary") ref-dictionary-prim)
-	(dictionary_primitive ("set-dictionary") set-dictionary-prim)
+	(dictionary_primitive ("set-dictionary") set-dictionary-prim); PEND
 
 	(expression (unary_dictionary_primitive "(" expression ")" ) unary_dictionary_primitive-app-exp)
+
 	(expression (dictionary_primitive "(" identifier "," (separated-list expression ",") ")" ) dictionary_primitive-app-exp)
 
 

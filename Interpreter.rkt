@@ -386,6 +386,16 @@
 		(element-type type?))
 )
 
+;;funcion para saber si algo es un list-type
+(define list-type? (lambda (t) (cases type t (list-type (element-type) #t) (else #f))))
+
+
+(define get-element-type
+	(lambda (t)
+		(cases type t
+			(list-type (element-type) element-type)
+			(else (eopl:error 'get-element-type "The type ~s is not a list-type" t)))))
+
 (define int-type
 	(atomic-type 'int))
 
@@ -1437,6 +1447,15 @@
 	)
 )
 
+(define type-of-app-float-primitive-verify
+  (lambda (prim n)
+    (if (>= n 2)
+        (proc-type (make-list n float-type) float-type)
+        (eopl:error 'type-of-app-float-primitive "~s invalid float-primitive expression" prim)
+        )
+    )
+  )
+
 (define type-of-app-int-primitive
 	(lambda (prim n)
 				(cases int-primitive prim
@@ -1454,6 +1473,55 @@
 					(int-incr-prim () (proc-type (list int-type) int-type))
 					(int-decr-prim () (proc-type (list int-type) int-type))
 					(else (eopl:error 'type-of-app-int-primitive "~s invalid int-primitive expression" prim)))
+	)
+)
+
+(define type-of-app-hex-primitive-verify
+	(lambda (prim n)
+			(if (>= n 2)
+				(proc-type (make-list n hex-type) hex-type)
+				(eopl:error 'type-of-app-hex-primitive "~s invalid hex-primitive expression" prim)
+			)
+	))
+
+(define type-of-app-hex-primitive
+	(lambda (prim n)
+				(cases hex-primitive prim
+					(hex-add-prim () (
+						type-of-app-hex-primitive-verify prim n
+					))
+					(hex-substract-prim () (
+						type-of-app-hex-primitive-verify prim n
+					))
+					(hex-mult-prim () (
+						type-of-app-hex-primitive-verify prim n
+					))
+					(hex-incr-prim () (proc-type (list hex-type) hex-type))
+					(hex-decr-prim () (proc-type (list hex-type) hex-type))
+					(else (eopl:error 'type-of-app-hex-primitive "~s invalid int-primitive expression" prim)))
+	)
+)
+
+
+
+
+(define type-of-app-float-primitive
+	(lambda (prim n)
+				(cases float-primitive prim
+					(float-add-prim () (
+						type-of-app-float-primitive-verify prim n
+					))
+					(float-substract-prim () (
+						type-of-app-float-primitive-verify prim n
+					))
+					(float-mult-prim () (
+						type-of-app-float-primitive-verify prim n
+					))
+					(float-div-prim () (proc-type (list float-type float-type) float-type))
+					(float-module-prim () (proc-type (list float-type float-type) float-type))
+					(float-incr-prim () (proc-type (list float-type) float-type))
+					(float-decr-prim () (proc-type (list float-type) float-type))
+					(else (eopl:error 'type-of-app-float-primitive "~s invalid int-primitive expression" prim)))
 	)
 )
 
@@ -1518,9 +1586,132 @@
 		(let ((test-type (type-of-expression test-exp tenv))
 					(body-type (type-of-expression body tenv)))
 			(check-equal-type! test-type bool-type test-exp)
-			(check-equal-type! body-type int-type body)
+			;;; (check-equal-type! body-type int-type body)
 			body-type)))
 
+(define type-of-iterator-exp
+	(lambda (iterator-exp tenv)
+		(cases iterator iterator-exp
+			(to-iterator () string-type)
+			(downto-iterator () string-type)
+			(else (eopl:error "~s invalid iterator expression" iterator-exp))
+		)
+	)
+)
+
+(define type-of-for-exp
+  (lambda (identifier initial-value iterator iterator-lim body tenv)
+    (let ((initial-value-type (type-of-expression initial-value tenv))
+          (iterator-value (type-of-iterator-exp iterator tenv))
+          (iterator-lim-type (type-of-expression iterator-lim tenv))
+          (body-type (type-of-expression body tenv)))
+      (check-equal-type! initial-value-type int-type initial-value)
+      (check-equal-type! iterator-lim-type int-type iterator-lim)
+      body-type)))
+
+(define type-of-length-string-prim
+	(lambda (type-of-rand)
+		(check-equal-type! type-of-rand string-type type-of-rand)
+	)
+)
+
+(define type-of-concat-string-prim
+	(lambda (type-of-rand1 type-of-rand2)
+		(check-equal-type! type-of-rand1 string-type type-of-rand1)
+		(check-equal-type! type-of-rand2 string-type type-of-rand2)
+		string-type
+	)
+)
+
+(define type-of-app-binary-string-primt-exp
+	(lambda (prim rand1 rand2 tenv)
+		(let ((type-of-rand1 (type-of-expression rand1 tenv))
+					(type-of-rand2 (type-of-expression rand2 tenv)))
+			(cases binary_string_primitive prim
+				(concat-string-prim () (type-of-concat-string-prim type-of-rand1 type-of-rand2))
+				(else (eopl:error "~s invalid binary_string_primitive expression" prim))
+			)
+		)
+	)
+)
+
+(define type-of-create-list-exp
+  (lambda (type-of-rand1 type-of-rand2)
+    (if (check-equal-type! (list-type type-of-rand1) type-of-rand2 type-of-rand2)
+        type-of-rand2
+        (error "Type mismatch: type-of-rand1 and type-of-rand2 must be the same type")
+		)))
+		;;; (list-type type-of-rand1)
+
+(define type-of-unary-list-primitive
+  (lambda (rator evaluated-rand)
+      (cases unary_list_primitive rator
+			;;si evaluated-rand es (list-type (atomic-type 'int)) para obtener la palabra 
+				(is-empty-list-prim ()
+					(if (list-type? evaluated-rand)
+						bool-type
+						(error "Type mismatch: evaluated-rand must be a list-type")
+					)
+				)
+				(is-list-prim ()
+					(if (list-type? evaluated-rand)
+						bool-type
+						(error "Type mismatch: evaluated-rand must be a list-type")
+					)
+				)
+				(list-head-prim ()
+					(if (list-type? evaluated-rand)
+						(get-element-type evaluated-rand)
+						(error "Type mismatch: evaluated-rand must be a list-type")
+					)
+				)
+				(list-tail-prim ()
+					(if (list-type? evaluated-rand)	
+						(get-element-type evaluated-rand)
+						(error "Type mismatch: evaluated-rand must be a list-type")
+					)
+				)
+        ;;; (is-list-prim () (check-equal-type! rand-type (list-type '()) evaluated-rand) bool-type)
+        ;;; (list-head-prim () (check-equal-type! rand-type (list-type '()) evaluated-rand)
+        ;;;                 (cdr (car evaluated-rand)))
+        (else (eopl:error "~s invalid unary_list_primitive expression" rator))
+        )
+      )
+    )
+
+(define type-of-list-primitive
+			(lambda (rator identifier evaluated-rand)
+		rator
+			)
+		)
+
+(define type-of-unary-tuple-primitive 
+	(lambda (rator evaluated-rand rand tenv)
+		(cases unary_tuple_primitive rator
+		(is-empty-tuple-prim ()
+		(check-equal-type! evaluated-rand tuple-type evaluated-rand) bool-type)
+		(is-tuple-prim ()
+		(check-equal-type! evaluated-rand tuple-type evaluated-rand) bool-type)
+		(tuple-head-prim ()
+		(check-equal-type! evaluated-rand tuple-type evaluated-rand)
+			int-type)
+		(tuple-tail-prim ()
+		(check-equal-type! evaluated-rand tuple-type evaluated-rand)
+			int-type)
+		(else (eopl:error "~s invalid unary_tuple_primitive expression" rator))
+		)
+	)
+)
+
+(define type-of-unary-record-primitive 
+	(lambda (rator evaluated-rand)
+		(cases unary_dictionary_primitive rator
+		(is-dictionary-prim ()
+		(check-equal-type! evaluated-rand dictionary-type evaluated-rand) bool-type)
+		(else (eopl:error "~s invalid unary_dictionary_primitive expression" rator))
+		)
+	)
+)
 ; -------------------------------------------------------------------------- ;
 ;                                TYPE CHECKER                                ;
 ; -------------------------------------------------------------------------- ;
@@ -1567,6 +1758,20 @@
 						(types-of-expressions rands tenv)
 						prim rands exp))
 			)
+			(app-float-prim-exp (prim rands)
+				(let ((n (length rands)))
+					(type-of-application
+						(type-of-app-float-primitive prim n)
+						(types-of-expressions rands tenv)
+						prim rands exp))
+			)
+			(app-hex-prim-exp (prim rands)
+				(let ((n (length rands)))
+					(type-of-application
+						(type-of-app-hex-primitive prim n)
+						(types-of-expressions rands tenv)
+						prim rands exp))
+			)
 			(app-exp (rator rands)
 							(type-of-application
 								(type-of-expression rator tenv)
@@ -1586,6 +1791,38 @@
 			(type-of-set-exp id new-value tenv))
 			(while-exp (test-exp body)
 				(type-of-while-exp test-exp body tenv))	
+			(for-exp (identifier initial-value iterator iterator-lim body)
+				(type-of-for-exp identifier initial-value iterator iterator-lim body tenv))
+			(app-unary-string-prim-exp (prim rand)
+				(let ((evaluated-rand (type-of-expression rand tenv)))
+					(cases unary_string_primitive prim
+						(length-string-prim () (type-of-length-string-prim evaluated-rand))
+						(else (eopl:error "~s invalid unary_string_primitive expression" prim))
+					)
+				)
+			)
+			(app-binary-string-prim-exp (prim rand1 rand2)
+				(type-of-app-binary-string-primt-exp prim rand1 rand2 tenv))
+			(create-list-exp (exp list-exp)
+				(type-of-create-list-exp (type-of-expression exp tenv) (type-of-expression list-exp tenv)))
+			(unary_list_primitive-app-exp (rator rand)
+				(let ((evaluated-rand (type-of-expression rand tenv)))
+					(type-of-unary-list-primitive rator evaluated-rand)
+				)
+			)
+			(create-tuple-exp (exp tuple-exp)
+				tuple-type
+				)
+			(unary_tuple_primitive-app-exp (rator rand)
+				(type-of-unary-tuple-primitive rator (type-of-expression rand tenv) rand tenv))
+			(create-dictionary-prim (exp)
+				dictionary-type
+				)
+			(unary_dictionary_primitive-app-exp (primitive exp)
+				(type-of-unary-record-primitive primitive (type-of-expression exp tenv)))
+
+		
+
 			(else (eopl:error "~s invalid expression" exp))
 )))
 
@@ -1607,13 +1844,7 @@
 
 (define test-exp "
 	int main() {
-				var
-					#f = 2
-        in
-					begin
-						set #f = 3;
-						#f
-					end
+				for ( #d = 1 to 5){2}
 	}
 ")
 
@@ -1624,11 +1855,7 @@
 (type-of-program
 	(scan&parse "
 		int main() {
-			while (2) {
-				var #f = 2
-				in
-				#f
-				}
+					dictionary?(create-dictionary({a=3;n=3}))
 		}
 	")	
 )
