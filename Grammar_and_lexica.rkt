@@ -1,3 +1,5 @@
+;; Archivo para evaluar la gramatica del Uses cases grammar
+
 #lang racket
 (require (except-in eopl procedure? #%module-begin))
 (provide (all-from-out eopl))
@@ -230,7 +232,7 @@
 	(type-exp ("hex") hex-type-exp)
 	(type-exp ("string") string-type-exp)
 	(type-exp ("bool") bool-type-exp)
-	(type-exp ("tuplbool-tye") tuple-type-exp)
+	(type-exp ("tuple") tuple-type-exp)
 	(type-exp ("dictionary") dictionary-type-exp)
 
 	(type-exp

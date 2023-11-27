@@ -248,4 +248,10 @@
 	}
 	```
 
-11.
+
+
+Programa 1 (43pts):  Muestre mediante un solo ejemplo que su interpretador tiene la capacidad de generar algún error de tipo int!= hex validado desde su interpretador y no por racket. En caso que su interpretador no incluya errores de este tipo, debe explicar las razones técnicas de dicha decisión.
+
+```
+
+```

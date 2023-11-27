@@ -1,3 +1,10 @@
+;;; Carlos Andrés Hernández Agudelo - 2125653
+;;; Brandon Calderon Prieto - 2125974
+;;; Los uses cases lo pueden ver en el Uses_cases_grammar.rkt
+;;; Repositorio: https://github.com/LONG-TERM-EFFECTS-OF-SUFFERING/Mini-Py
+;;; La gramatica esta en el README.md
+
+
 #lang racket
 (require (except-in eopl #%module-begin))
 (provide (all-from-out eopl))
@@ -1987,31 +1994,32 @@
 ; -------------------------------------------------------------------------- ;
 ;                                  TEST AREA                                 ;
 ; -------------------------------------------------------------------------- ;
-
-(define another-test "
-	int main() {
-		5
-	}
-")
-
-
-(define test-eval-exp "
-	int main() {
-		5
-	}
-")
-
-
-;(scan&parse test-eval-exp)
-(eval-program (scan&parse another-test))
+;;; 
+;;; (define another-test "
+;;; 	int main() {
+;;; 		5
+;;; 	}
+;;; ")
+;;; 
+;;; 
+;;; (define test-eval-exp "
+;;; 	int main() {
+;;; 		5
+;;; 	}
+;;; ")
+;;; 
+;;; 
+;;; ;(scan&parse test-eval-exp)
+;;; (eval-program (scan&parse another-test))
 
 (define test-type-exp "
 	int main() {
-		{
-			key1 = 1;
-			key2 = 2
-		}
+			var
+				#f = list (1,2)
+				#proc = proc (float #f) if true then #f else +f(#f, #f)
+			in
+				(#proc false)
 	}
 ")
 
-; (type-of-program (scan&parse test-type-exp))
+(type-of-program (scan&parse test-type-exp))
