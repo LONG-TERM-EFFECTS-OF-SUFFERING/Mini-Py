@@ -1,5 +1,11 @@
 # Mini-Py
 
+## Group members
+
+- Calderón Prieto Brandon - 2125974.
+
+- Hernández Agudelo Carlos Andrés - 2125653.
+
 ## Grammar specification
 
 ```

@@ -139,7 +139,7 @@
 	int main() {
 		const
 			#string1 = \"Hello\"
-			#string2 = \"-world\"
+			#string2 = \"world\"
 		in
 			begin
 				print(my-string-length(#string1));
@@ -171,7 +171,35 @@
 8. Elabore una función en su lenguaje de programación que reciba una lista de enteros "L" y retorne un registro con dos claves: "valores" y "factoriales". La clave "valores" debe tener asociada una tupla con los mismos valores de "L" y la clave "factoriales" debe tener asociada una lista con el factorial de cada valor de la lista "L".
 
 	```
+	int main() {
+		rec
+			int #factorial(int #n) =
+				if == (#n, 0)
+				then 1
+				else *i(#n, (#factorial -i(#n, 1)))
 
+			int #tupleLength(int #t) =
+				if empty-tuple?(#t)
+				then 0
+				else +i(1, (#tupleLength tail-tuple(#t)))
+		in
+			var
+				#initialTuple = tuple(1, 2, 3, 4, 7, 9)
+				#initialList = list()
+				#calculateValues = proc(int #tuple, int #list)
+					begin
+						for (#i = 0 to -i((#tupleLength #tuple), 1)) {
+							append #list (
+								list((#factorial ref-tuple #tuple (#i)))
+							)
+						};
+						#list
+					end
+			in
+				begin
+					(#calculateValues #initialTuple list())
+				end
+	}
 	```
 
 9. Elabore la función "map" en su lenguaje de programación. La función "map" recibe una lista "L" y una función unaria "F". "map" debe retornar una lista donde se le ha aplicado la función "F" a cada elemento de la lista "L" (utilice las funciones auxiliares necesarias).
@@ -199,6 +227,25 @@
 	- contenga un ciclo de repetición que itere de 1 a 5 e invoque al procedimiento "esPar?" con la variable del ciclo que utiliza (i.e., false,true,false,true,false). El programa podrá retornar ya sea una lista o una tupla o imprimir los valores en pantalla.
 
 	```
-
-
+	int main() {
+		var
+			#isEven = proc(int #n) ==(%i (#n, 2), 0)
+			#i = 1
+		in
+			begin
+				for (#i = 1 to 5) {
+					print(#i)
+				};
+				while (<=(#i, 5)) {
+					begin
+						if (#isEven #i)
+						then print(#i)
+						else -1;
+						set #i = add1i(#i)
+					end
+				}
+			end
+	}
 	```
+
+11.
